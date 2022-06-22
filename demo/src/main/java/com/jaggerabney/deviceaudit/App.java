@@ -16,7 +16,7 @@ public class App {
         try {
             // load first sheet in frmInventory.xlsx
             Sheet frmInventory = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
-            String[] assetTags = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "AssetTag"));
+            String[] frmAssetTags = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "AssetTag"));
             String[] serialNums = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "SerialNum"));
             String[] modelNames = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "ItemDesc"));
             String[] statuses = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "Status"));
