@@ -2,8 +2,10 @@ package com.jaggerabney.deviceaudit;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 
 import org.apache.poi.ss.usermodel.*;
@@ -19,7 +21,11 @@ public class App {
             String[] modelNames = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "ItemDesc"));
             String[] statuses = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "Status"));
 
-            Sheet bowes62 = loadWorkbook("BOWES 6-2.xlsx").getSheetAt(0);
+            Workbook bowes62 = loadWorkbook("BOWES 6-2.xlsx");
+            fillValuesForColumn("AssetTag", assetTags, bowes62.getSheetAt(0));
+
+            OutputStream os = new FileOutputStream("BOWES 6-2.xlsx");
+            bowes62.write(os);
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -60,4 +66,19 @@ public class App {
         return tempValues.toArray(new String[0]);
     }
 
+    private static void fillValuesForColumn(String targetColumn, String[] columnData, Sheet sheet) {
+        int targetColIndex = getIndexOfColumn(sheet, targetColumn);
+        Iterator<Row> iterator = sheet.iterator();
+        Row currentRow = null;
+        Cell currentCell = null;
+
+        for (int i = 0; i < columnData.length; i++) {
+            if (sheet.getRow(i) == null) {
+                sheet.createRow(i);
+            }
+
+            sheet.getRow(i).createCell(targetColIndex).setCellValue(columnData[i]);
+            System.out.println(i);
+        }
+    }
 }
