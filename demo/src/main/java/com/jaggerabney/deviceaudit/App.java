@@ -17,14 +17,21 @@ public class App {
     public static void main(String[] args) {
         try {
             Workbook audit = loadWorkbook("audit.xlsx");
-            Device[] devices = createDevicesFromWorkbook(audit);
+            Sheet sheet = audit.getSheet("Kellogg");
+            System.out.println(Arrays.toString(getValuesOfColumn(sheet, getIndexOfColumn(sheet, "Tag #"))));
+
+            // Device[] devices = createDevicesFromWorkbook(audit);
 
             // load first sheet in frmInventory.xlsx
-            Sheet frmInventory = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
-            String[] frmAssetTags = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "AssetTag"));
-            String[] serialNums = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "SerialNum"));
-            String[] modelNames = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "ItemDesc"));
-            String[] statuses = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "Status"));
+            // Sheet frmInventory = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
+            // String[] frmAssetTags = getValuesOfColumn(frmInventory,
+            // getIndexOfColumn(frmInventory, "AssetTag"));
+            // String[] serialNums = getValuesOfColumn(frmInventory,
+            // getIndexOfColumn(frmInventory, "SerialNum"));
+            // String[] modelNames = getValuesOfColumn(frmInventory,
+            // getIndexOfColumn(frmInventory, "ItemDesc"));
+            // String[] statuses = getValuesOfColumn(frmInventory,
+            // getIndexOfColumn(frmInventory, "Status"));
 
             // Workbook bowes62 = loadWorkbook("BOWES 6-2.xlsx");
             // fillValuesForColumn("AssetTag", assetTags, bowes62.getSheetAt(0));
@@ -64,8 +71,16 @@ public class App {
         Cell currentCell = null;
 
         for (int i = 0; i < sheet.getPhysicalNumberOfRows(); i++) {
-            currentCell = sheet.getRow(i).getCell(colIndex);
-            tempValues.add(df.formatCellValue(currentCell));
+            // a blank row is considered null, hence this check
+            if (sheet.getRow(i) != null) {
+                currentCell = sheet.getRow(i).getCell(colIndex);
+
+                if (currentCell == null || currentCell.getCellType() == CellType.BLANK) {
+                    continue;
+                }
+
+                tempValues.add(df.formatCellValue(currentCell));
+            }
         }
 
         return tempValues.toArray(new String[0]);
@@ -73,9 +88,6 @@ public class App {
 
     private static void fillValuesForColumn(String targetColumn, String[] columnData, Sheet sheet) {
         int targetColIndex = getIndexOfColumn(sheet, targetColumn);
-        Iterator<Row> iterator = sheet.iterator();
-        Row currentRow = null;
-        Cell currentCell = null;
 
         for (int i = 0; i < columnData.length; i++) {
             if (sheet.getRow(i) == null) {
@@ -83,12 +95,23 @@ public class App {
             }
 
             sheet.getRow(i).createCell(targetColIndex).setCellValue(columnData[i]);
-            System.out.println(i);
         }
     }
 
     private static Device[] createDevicesFromWorkbook(Workbook workbook) {
         ArrayList<Device> tempDevices = new ArrayList<>();
+        int numSheets = workbook.getNumberOfSheets();
+        Sheet currentSheet = null;
+        String[] tempAssetTags = null;
+
+        for (int i = 0; i < numSheets; i++) {
+            currentSheet = workbook.getSheetAt(i);
+            tempAssetTags = getValuesOfColumn(currentSheet, getIndexOfColumn(currentSheet, "Tag #"));
+
+            for (int j = 0; j < tempAssetTags.length; j++) {
+
+            }
+        }
 
         return null;
     }
