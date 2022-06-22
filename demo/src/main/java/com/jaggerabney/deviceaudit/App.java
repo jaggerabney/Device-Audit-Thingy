@@ -17,10 +17,8 @@ public class App {
     public static void main(String[] args) {
         try {
             Workbook audit = loadWorkbook("audit.xlsx");
-            Sheet sheet = audit.getSheet("Kellogg");
-            System.out.println(Arrays.toString(getValuesOfColumn(sheet, getIndexOfColumn(sheet, "Tag #"))));
-
-            // Device[] devices = createDevicesFromWorkbook(audit);
+            Device[] devices = createDevicesFromAuditWorkbook(audit);
+            System.out.println(Arrays.toString(devices));
 
             // load first sheet in frmInventory.xlsx
             // Sheet frmInventory = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
@@ -98,21 +96,34 @@ public class App {
         }
     }
 
-    private static Device[] createDevicesFromWorkbook(Workbook workbook) {
+    private static Device[] createDevicesFromAuditWorkbook(Workbook workbook) {
         ArrayList<Device> tempDevices = new ArrayList<>();
         int numSheets = workbook.getNumberOfSheets();
+        int roomColIndex, assetColIndex, cotColIndex;
+        String room, asset, cot;
         Sheet currentSheet = null;
-        String[] tempAssetTags = null;
+        Row currentRow = null;
+        DataFormatter df = new DataFormatter();
 
-        for (int i = 0; i < numSheets; i++) {
-            currentSheet = workbook.getSheetAt(i);
-            tempAssetTags = getValuesOfColumn(currentSheet, getIndexOfColumn(currentSheet, "Tag #"));
+        for (int sheet = 0; sheet < numSheets; sheet++) {
+            currentSheet = workbook.getSheetAt(sheet);
+            roomColIndex = getIndexOfColumn(currentSheet, "Room #");
+            assetColIndex = getIndexOfColumn(currentSheet, "Tag #");
+            cotColIndex = getIndexOfColumn(currentSheet, "Assigned user");
 
-            for (int j = 0; j < tempAssetTags.length; j++) {
+            for (int row = 0; row < currentSheet.getPhysicalNumberOfRows(); row++) {
+                if (currentSheet.getRow(row) != null) {
+                    currentRow = currentSheet.getRow(row);
 
+                    room = df.formatCellValue(currentRow.getCell(roomColIndex));
+                    asset = df.formatCellValue(currentRow.getCell(assetColIndex));
+                    cot = df.formatCellValue(currentRow.getCell(cotColIndex));
+
+                    tempDevices.add(new Device(row, room, asset, cot));
+                }
             }
         }
 
-        return null;
+        return tempDevices.toArray(new Device[0]);
     }
 }
