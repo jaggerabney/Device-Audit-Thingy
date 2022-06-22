@@ -73,7 +73,7 @@ public class App {
             if (sheet.getRow(i) != null) {
                 currentCell = sheet.getRow(i).getCell(colIndex);
 
-                if (currentCell == null || currentCell.getCellType() == CellType.BLANK) {
+                if (isEmpty(currentCell)) {
                     continue;
                 }
 
@@ -99,7 +99,8 @@ public class App {
     private static Device[] createDevicesFromAuditWorkbook(Workbook workbook) {
         ArrayList<Device> tempDevices = new ArrayList<>();
         int numSheets = workbook.getNumberOfSheets();
-        int roomColIndex, assetColIndex, cotColIndex;
+        int roomColIndex = 0, assetColIndex = 1, cotColIndex = 2;
+        Cell currentRoom, currentAsset, currentCot, lastRoom, lastCot;
         String room, asset, cot;
         Sheet currentSheet = null;
         Row currentRow = null;
@@ -107,23 +108,37 @@ public class App {
 
         for (int sheet = 0; sheet < numSheets; sheet++) {
             currentSheet = workbook.getSheetAt(sheet);
-            roomColIndex = getIndexOfColumn(currentSheet, "Room #");
-            assetColIndex = getIndexOfColumn(currentSheet, "Tag #");
-            cotColIndex = getIndexOfColumn(currentSheet, "Assigned user");
+            lastRoom = null;
+            lastCot = null;
 
             for (int row = 0; row < currentSheet.getPhysicalNumberOfRows(); row++) {
                 if (currentSheet.getRow(row) != null) {
                     currentRow = currentSheet.getRow(row);
+                    currentRoom = currentRow.getCell(roomColIndex);
+                    currentAsset = currentRow.getCell(assetColIndex);
+                    currentCot = currentRow.getCell(cotColIndex);
 
-                    room = df.formatCellValue(currentRow.getCell(roomColIndex));
-                    asset = df.formatCellValue(currentRow.getCell(assetColIndex));
-                    cot = df.formatCellValue(currentRow.getCell(cotColIndex));
+                    if (isEmpty(currentRoom)) {
+                        currentRoom = lastRoom;
+                    }
+                    room = df.formatCellValue(currentRoom);
+                    asset = df.formatCellValue(currentAsset);
+                    if (isEmpty(currentCot)) {
+                        currentCot = lastCot;
+                    }
+                    cot = df.formatCellValue(currentCot);
 
+                    lastRoom = currentRoom;
+                    lastCot = currentCot;
                     tempDevices.add(new Device(row, room, asset, cot));
                 }
             }
         }
 
         return tempDevices.toArray(new Device[0]);
+    }
+
+    private static boolean isEmpty(Cell cell) {
+        return (cell == null || cell.getCellType() == CellType.BLANK);
     }
 }
