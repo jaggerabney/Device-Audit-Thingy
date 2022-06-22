@@ -14,8 +14,10 @@ public class App {
         try {
             // load first sheet in frmInventory.xlsx
             Sheet sheet = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
-            String[] assetTags = getAssetTagsFrom(sheet);
-            System.out.println(Arrays.toString(assetTags));
+            String[] assetTags = getValuesOfColumn(sheet, getIndexOfColumn(sheet, "AssetTag"));
+            String[] serialNums = getValuesOfColumn(sheet, getIndexOfColumn(sheet, "SerialNum"));
+            String[] modelNames = getValuesOfColumn(sheet, getIndexOfColumn(sheet, "ItemDesc"));
+            String[] statuses = getValuesOfColumn(sheet, getIndexOfColumn(sheet, "status"));
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -56,8 +58,4 @@ public class App {
         return tempValues.toArray(new String[0]);
     }
 
-    private static String[] getAssetTagsFrom(Sheet sheet) {
-        int assetTagColIndex = getIndexOfColumn(sheet, "AssetTag");
-        return getValuesOfColumn(sheet, assetTagColIndex);
-    }
 }
