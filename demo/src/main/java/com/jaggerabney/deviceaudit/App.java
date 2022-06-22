@@ -26,26 +26,27 @@ public class App {
         return new XSSFWorkbook(is);
     }
 
-    private static String[] getAssetTagsFrom(Sheet sheet) throws Exception {
+    private static int getIndexOfColumn(Sheet sheet, String columnHeader) {
         int numCol = sheet.getRow(0).getPhysicalNumberOfCells();
-        int assetTagColIndex = -1;
-        ArrayList<String> tempAssetTags = new ArrayList<>();
-        DataFormatter df = new DataFormatter();
+        int colIndex = -1;
         String temp = "";
+        DataFormatter df = new DataFormatter();
 
-        // find column that stores asset tags
         for (int i = 0; i < numCol; i++) {
             temp = df.formatCellValue(sheet.getRow(0).getCell(i));
 
-            if (temp.replaceAll("\\s+", "").equals("AssetTag")) {
-                assetTagColIndex = i;
+            if (temp.replaceAll("\\s+", "").equals(columnHeader)) {
+                colIndex = i;
             }
         }
 
-        // throws exception if column can't be found
-        if (assetTagColIndex == -1) {
-            throw new Exception("Asset tag column not found!");
-        }
+        return colIndex;
+    }
+
+    private static String[] getAssetTagsFrom(Sheet sheet) throws Exception {
+        int assetTagColIndex = getIndexOfColumn(sheet, "AssetTag");
+        ArrayList<String> tempAssetTags = new ArrayList<>();
+        DataFormatter df = new DataFormatter();
 
         // stores value in asset tag column
         Cell currentCell = null;
