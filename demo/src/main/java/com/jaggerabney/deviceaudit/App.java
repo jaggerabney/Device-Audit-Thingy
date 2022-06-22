@@ -15,24 +15,24 @@ public class App {
     public static void main(String[] args) {
         try {
             // load first sheet in frmInventory.xlsx
-            Sheet frmInventory = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
+            Sheet frmInventory = loadWorkbook("./frmInventory.xlsx").getSheetAt(0);
             String[] assetTags = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "AssetTag"));
             String[] serialNums = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "SerialNum"));
             String[] modelNames = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "ItemDesc"));
             String[] statuses = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "Status"));
 
-            Workbook bowes62 = loadWorkbook("BOWES 6-2.xlsx");
-            fillValuesForColumn("AssetTag", assetTags, bowes62.getSheetAt(0));
+            // Workbook bowes62 = loadWorkbook("BOWES 6-2.xlsx");
+            // fillValuesForColumn("AssetTag", assetTags, bowes62.getSheetAt(0));
 
-            OutputStream os = new FileOutputStream("BOWES 6-2.xlsx");
-            bowes62.write(os);
+            // OutputStream os = new FileOutputStream("BOWES 6-2.xlsx");
+            // bowes62.write(os);
         } catch (Exception e) {
             System.out.println(e);
         }
     }
 
     private static XSSFWorkbook loadWorkbook(String filename) throws IOException {
-        InputStream is = App.class.getClassLoader().getResourceAsStream(filename);
+        InputStream is = new FileInputStream(filename);
         return new XSSFWorkbook(is);
     }
 
