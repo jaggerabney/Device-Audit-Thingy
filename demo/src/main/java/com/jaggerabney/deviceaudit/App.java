@@ -13,11 +13,13 @@ public class App {
     public static void main(String[] args) {
         try {
             // load first sheet in frmInventory.xlsx
-            Sheet sheet = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
-            String[] assetTags = getValuesOfColumn(sheet, getIndexOfColumn(sheet, "AssetTag"));
-            String[] serialNums = getValuesOfColumn(sheet, getIndexOfColumn(sheet, "SerialNum"));
-            String[] modelNames = getValuesOfColumn(sheet, getIndexOfColumn(sheet, "ItemDesc"));
-            String[] statuses = getValuesOfColumn(sheet, getIndexOfColumn(sheet, "status"));
+            Sheet frmInventory = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
+            String[] assetTags = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "AssetTag"));
+            String[] serialNums = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "SerialNum"));
+            String[] modelNames = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "ItemDesc"));
+            String[] statuses = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "Status"));
+
+            Sheet bowes62 = loadWorkbook("BOWES 6-2.xlsx").getSheetAt(0);
         } catch (Exception e) {
             System.out.println(e);
         }
