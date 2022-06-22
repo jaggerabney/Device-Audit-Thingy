@@ -15,7 +15,7 @@ public class App {
     public static void main(String[] args) {
         try {
             // load first sheet in frmInventory.xlsx
-            Sheet frmInventory = loadWorkbook("./frmInventory.xlsx").getSheetAt(0);
+            Sheet frmInventory = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
             String[] assetTags = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "AssetTag"));
             String[] serialNums = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "SerialNum"));
             String[] modelNames = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "ItemDesc"));
@@ -31,7 +31,7 @@ public class App {
         }
     }
 
-    private static XSSFWorkbook loadWorkbook(String filename) throws IOException {
+    private static XSSFWorkbook loadWorkbook(String filename) throws Exception {
         InputStream is = new FileInputStream(filename);
         return new XSSFWorkbook(is);
     }
