@@ -8,8 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
-import com.jaggerabney.Device;
-
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -17,9 +15,10 @@ public class App {
     public static void main(String[] args) {
         try {
             Workbook audit = loadWorkbook("audit.xlsx");
+            Workbook inventory = loadWorkbook("inventory.xlsx");
             Device[] devices = createDevicesFromAuditWorkbook(audit);
+            devices = updateDevicesWithInventoryInfo(inventory, devices);
             System.out.println(Arrays.toString(devices));
-
             // load first sheet in frmInventory.xlsx
             // Sheet frmInventory = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
             // String[] frmAssetTags = getValuesOfColumn(frmInventory,
@@ -136,6 +135,35 @@ public class App {
         }
 
         return tempDevices.toArray(new Device[0]);
+    }
+
+    private static Device[] updateDevicesWithInventoryInfo(Workbook workbook, Device[] devices) {
+        Sheet sheet = workbook.getSheetAt(0);
+        int assetColIndex = getIndexOfColumn(sheet, "AssetTag"),
+                serialColIndex = getIndexOfColumn(sheet, "SerialNum"),
+                modelColIndex = getIndexOfColumn(sheet, "ItemDesc"),
+                statusColIndex = getIndexOfColumn(sheet, "Status");
+        String currentSerial = "", currentModel = "", currentStatus = "";
+        List<String> assetTags = Arrays.asList(getValuesOfColumn(sheet, assetColIndex));
+        ArrayList<Device> result = new ArrayList<>();
+        DataFormatter df = new DataFormatter();
+        int currentRow = 0;
+
+        for (Device device : devices) {
+            currentRow = assetTags.indexOf(device.asset);
+
+            if (currentRow != -1) {
+                currentSerial = df.formatCellValue(sheet.getRow(currentRow).getCell(serialColIndex));
+                currentModel = df.formatCellValue(sheet.getRow(currentRow).getCell(modelColIndex));
+                currentStatus = df.formatCellValue(sheet.getRow(currentRow).getCell(statusColIndex));
+
+                result.add(
+                        new Device(currentRow, device.asset, currentSerial, device.location, device.room, currentModel,
+                                device.cot, currentStatus));
+            }
+        }
+
+        return result.toArray(new Device[0]);
     }
 
     private static boolean isEmpty(Cell cell) {

@@ -1,4 +1,4 @@
-package com.jaggerabney;
+package com.jaggerabney.deviceaudit;
 
 public final class Device {
     public int row;
