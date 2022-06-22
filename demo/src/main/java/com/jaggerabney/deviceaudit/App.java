@@ -35,7 +35,7 @@ public class App {
         for (int i = 0; i < numCol; i++) {
             temp = df.formatCellValue(sheet.getRow(0).getCell(i));
 
-            if (temp.replaceAll("\\s+", "").equals(columnHeader)) {
+            if (temp.equals(columnHeader)) {
                 colIndex = i;
             }
         }
@@ -43,19 +43,21 @@ public class App {
         return colIndex;
     }
 
-    private static String[] getAssetTagsFrom(Sheet sheet) throws Exception {
-        int assetTagColIndex = getIndexOfColumn(sheet, "AssetTag");
-        ArrayList<String> tempAssetTags = new ArrayList<>();
+    private static String[] getValuesOfColumn(Sheet sheet, int colIndex) {
+        ArrayList<String> tempValues = new ArrayList<>();
         DataFormatter df = new DataFormatter();
-
-        // stores value in asset tag column
         Cell currentCell = null;
 
         for (int i = 0; i < sheet.getPhysicalNumberOfRows(); i++) {
-            currentCell = sheet.getRow(i).getCell(assetTagColIndex);
-            tempAssetTags.add(df.formatCellValue(currentCell));
+            currentCell = sheet.getRow(i).getCell(colIndex);
+            tempValues.add(df.formatCellValue(currentCell));
         }
 
-        return tempAssetTags.toArray(new String[0]);
+        return tempValues.toArray(new String[0]);
+    }
+
+    private static String[] getAssetTagsFrom(Sheet sheet) {
+        int assetTagColIndex = getIndexOfColumn(sheet, "AssetTag");
+        return getValuesOfColumn(sheet, assetTagColIndex);
     }
 }
