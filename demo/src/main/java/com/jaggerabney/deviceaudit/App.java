@@ -8,12 +8,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 
+import com.jaggerabney.Device;
+
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class App {
     public static void main(String[] args) {
         try {
+            Workbook audit = loadWorkbook("audit.xlsx");
+            Device[] devices = createDevicesFromWorkbook(audit);
+
             // load first sheet in frmInventory.xlsx
             Sheet frmInventory = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
             String[] frmAssetTags = getValuesOfColumn(frmInventory, getIndexOfColumn(frmInventory, "AssetTag"));
@@ -80,5 +85,11 @@ public class App {
             sheet.getRow(i).createCell(targetColIndex).setCellValue(columnData[i]);
             System.out.println(i);
         }
+    }
+
+    private static Device[] createDevicesFromWorkbook(Workbook workbook) {
+        ArrayList<Device> tempDevices = new ArrayList<>();
+
+        return null;
     }
 }

@@ -7,4 +7,8 @@ public class Device {
     public String serial;
     public String model;
     public String status;
+
+    public Device(String asset) {
+        this.asset = asset;
+    }
 }
