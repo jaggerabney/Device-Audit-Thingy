@@ -1,37 +1,24 @@
 package com.jaggerabney.deviceaudit;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
-
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xssf.usermodel.*;
 
 public class App {
+    public static final int NUM_DEVICE_PROPS = 7;
+
     public static void main(String[] args) {
         try {
             Workbook audit = loadWorkbook("audit.xlsx");
             Workbook inventory = loadWorkbook("inventory.xlsx");
+            Workbook target = loadWorkbook("target.xlsx");
             Device[] devices = createDevicesFromAuditWorkbook(audit);
-            devices = updateDevicesWithInventoryInfo(inventory, devices);
-            System.out.println(Arrays.toString(devices));
-            // load first sheet in frmInventory.xlsx
-            // Sheet frmInventory = loadWorkbook("frmInventory.xlsx").getSheetAt(0);
-            // String[] frmAssetTags = getValuesOfColumn(frmInventory,
-            // getIndexOfColumn(frmInventory, "AssetTag"));
-            // String[] serialNums = getValuesOfColumn(frmInventory,
-            // getIndexOfColumn(frmInventory, "SerialNum"));
-            // String[] modelNames = getValuesOfColumn(frmInventory,
-            // getIndexOfColumn(frmInventory, "ItemDesc"));
-            // String[] statuses = getValuesOfColumn(frmInventory,
-            // getIndexOfColumn(frmInventory, "Status"));
 
-            // Workbook bowes62 = loadWorkbook("BOWES 6-2.xlsx");
-            // fillValuesForColumn("AssetTag", assetTags, bowes62.getSheetAt(0));
+            devices = updateDevicesWithInventoryInfo(inventory, devices);
+            target = updateTargetWorkbookWithDeviceInfo(target, devices);
+
+            System.out.println(target);
 
             // OutputStream os = new FileOutputStream("BOWES 6-2.xlsx");
             // bowes62.write(os);
@@ -164,6 +151,42 @@ public class App {
         }
 
         return result.toArray(new Device[0]);
+    }
+
+    private static Workbook updateTargetWorkbookWithDeviceInfo(Workbook workbook, Device[] devices) {
+        Workbook result = workbook;
+        Sheet sheet = result.getSheetAt(0);
+        Row currentRow = null;
+        Device currentDevice = null;
+        int assetColIndex = getIndexOfColumn(sheet, "AssetTag"),
+                serialColIndex = getIndexOfColumn(sheet, "Serial Number"),
+                locationColIndex = getIndexOfColumn(sheet, "Location"),
+                roomColIndex = getIndexOfColumn(sheet, "Room"),
+                modelColIndex = getIndexOfColumn(sheet, "Model Name"),
+                cotColIndex = getIndexOfColumn(sheet, "Checked Out to"),
+                statusColIndex = getIndexOfColumn(sheet, "Status");
+
+        for (int row = 1; row < devices.length; row++) {
+            if (sheet.getRow(row) == null) {
+                sheet.createRow(row);
+            }
+            currentRow = sheet.getRow(row);
+            currentDevice = devices[row];
+
+            for (int col = 0; col < NUM_DEVICE_PROPS; col++) {
+                currentRow.createCell(col);
+            }
+
+            currentRow.getCell(assetColIndex).setCellValue(currentDevice.asset);
+            currentRow.getCell(serialColIndex).setCellValue(currentDevice.serial);
+            currentRow.getCell(locationColIndex).setCellValue(currentDevice.location);
+            currentRow.getCell(roomColIndex).setCellValue(currentDevice.room);
+            currentRow.getCell(modelColIndex).setCellValue(currentDevice.model);
+            currentRow.getCell(cotColIndex).setCellValue(currentDevice.cot);
+            currentRow.getCell(statusColIndex).setCellValue(currentDevice.status);
+        }
+
+        return result;
     }
 
     private static boolean isEmpty(Cell cell) {
