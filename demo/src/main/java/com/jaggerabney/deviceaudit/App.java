@@ -76,18 +76,6 @@ public class App {
         return tempValues.toArray(new String[0]);
     }
 
-    private static void fillValuesForColumn(String targetColumn, String[] columnData, Sheet sheet) {
-        int targetColIndex = getIndexOfColumn(sheet, targetColumn);
-
-        for (int i = 0; i < columnData.length; i++) {
-            if (sheet.getRow(i) == null) {
-                sheet.createRow(i);
-            }
-
-            sheet.getRow(i).createCell(targetColIndex).setCellValue(columnData[i]);
-        }
-    }
-
     private static Device[] createDevicesFromAuditWorkbook(Workbook workbook) {
         ArrayList<Device> tempDevices = new ArrayList<>();
         int numSheets = workbook.getNumberOfSheets();
