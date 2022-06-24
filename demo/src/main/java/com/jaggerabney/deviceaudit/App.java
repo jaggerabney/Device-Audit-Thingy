@@ -9,6 +9,7 @@ import org.apache.poi.xssf.usermodel.*;
 public class App {
     public static final int NUM_DEVICE_PROPS = 7;
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.00");
+    public static final DataFormatter DATA_FORMATTER = new DataFormatter();
 
     public static void main(String[] args) {
         try {
@@ -42,10 +43,9 @@ public class App {
         int numCol = sheet.getRow(0).getPhysicalNumberOfCells();
         int colIndex = -1;
         String temp = "";
-        DataFormatter df = new DataFormatter();
 
         for (int i = 0; i < numCol; i++) {
-            temp = df.formatCellValue(sheet.getRow(0).getCell(i));
+            temp = DATA_FORMATTER.formatCellValue(sheet.getRow(0).getCell(i));
 
             if (temp.equals(columnHeader)) {
                 colIndex = i;
@@ -57,7 +57,6 @@ public class App {
 
     private static String[] getValuesOfColumn(Sheet sheet, int colIndex) {
         ArrayList<String> tempValues = new ArrayList<>();
-        DataFormatter df = new DataFormatter();
         Cell currentCell = null;
 
         for (int i = 0; i < sheet.getPhysicalNumberOfRows(); i++) {
@@ -69,7 +68,7 @@ public class App {
                     continue;
                 }
 
-                tempValues.add(df.formatCellValue(currentCell));
+                tempValues.add(DATA_FORMATTER.formatCellValue(currentCell));
             }
         }
 
@@ -85,7 +84,6 @@ public class App {
         String room, asset, cot;
         Sheet currentSheet = null;
         Row currentRow = null;
-        DataFormatter df = new DataFormatter();
 
         for (int sheet = 0; sheet < numSheets; sheet++) {
             currentSheet = workbook.getSheetAt(sheet);
@@ -116,12 +114,12 @@ public class App {
                     if (isEmpty(currentRoom)) {
                         currentRoom = lastRoom;
                     }
-                    room = df.formatCellValue(currentRoom);
-                    asset = df.formatCellValue(currentAsset);
+                    room = DATA_FORMATTER.formatCellValue(currentRoom);
+                    asset = DATA_FORMATTER.formatCellValue(currentAsset);
                     if (isEmpty(currentCot)) {
                         currentCot = lastCot;
                     }
-                    cot = df.formatCellValue(currentCot);
+                    cot = DATA_FORMATTER.formatCellValue(currentCot);
 
                     lastRoom = currentRoom;
                     lastCot = currentCot;
@@ -148,7 +146,6 @@ public class App {
         String currentSerial = "", currentModel = "", currentStatus = "";
         List<String> assetTags = Arrays.asList(getValuesOfColumn(sheet, assetColIndex));
         ArrayList<Device> result = new ArrayList<>();
-        DataFormatter df = new DataFormatter();
         int currentRow = 0;
 
         System.out.print("\nUpdating devices with info from inventory.xlsx: " + (int) numDevicesUpdated + " / "
@@ -159,9 +156,9 @@ public class App {
             currentRow = assetTags.indexOf(device.asset);
 
             if (currentRow != -1) {
-                currentSerial = df.formatCellValue(sheet.getRow(currentRow).getCell(serialColIndex));
-                currentModel = df.formatCellValue(sheet.getRow(currentRow).getCell(modelColIndex));
-                currentStatus = df.formatCellValue(sheet.getRow(currentRow).getCell(statusColIndex));
+                currentSerial = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(serialColIndex));
+                currentModel = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelColIndex));
+                currentStatus = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(statusColIndex));
 
                 result.add(
                         new Device(currentRow, device.asset, currentSerial, device.location, device.room, currentModel,
