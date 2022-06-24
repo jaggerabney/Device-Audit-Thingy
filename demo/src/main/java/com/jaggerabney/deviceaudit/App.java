@@ -18,10 +18,8 @@ public class App {
             devices = updateDevicesWithInventoryInfo(inventory, devices);
             target = updateTargetWorkbookWithDeviceInfo(target, devices);
 
-            System.out.println(target);
-
-            // OutputStream os = new FileOutputStream("BOWES 6-2.xlsx");
-            // bowes62.write(os);
+            OutputStream os = new FileOutputStream("target.xlsx");
+            target.write(os);
         } catch (Exception e) {
             System.out.println(e);
         }
