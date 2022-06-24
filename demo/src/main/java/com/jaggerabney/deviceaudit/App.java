@@ -22,7 +22,7 @@ public class App {
             System.out.print("done!\n");
             Device[] devices = createDevicesFromAuditWorkbook(audit);
 
-            devices = updateDevicesWithInventoryInfo(inventory, devices);
+            devices = updateDevicesWithInventoryInfo(inventory, devices, args[0]);
             target = updateTargetWorkbookWithDeviceInfo(target, devices);
 
             System.out.print("\nWriting to target.xlsx...");
@@ -136,7 +136,7 @@ public class App {
         return tempDevices.toArray(new Device[0]);
     }
 
-    private static Device[] updateDevicesWithInventoryInfo(Workbook workbook, Device[] devices) {
+    private static Device[] updateDevicesWithInventoryInfo(Workbook workbook, Device[] devices, String location) {
         Sheet sheet = workbook.getSheetAt(0);
         int assetColIndex = getIndexOfColumn(sheet, "AssetTag"),
                 serialColIndex = getIndexOfColumn(sheet, "SerialNum"),
@@ -161,7 +161,7 @@ public class App {
                 currentStatus = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(statusColIndex));
 
                 result.add(
-                        new Device(currentRow, device.asset, currentSerial, device.location, device.room, currentModel,
+                        new Device(currentRow, device.asset, currentSerial, location, device.room, currentModel,
                                 device.cot, currentStatus));
             }
 
