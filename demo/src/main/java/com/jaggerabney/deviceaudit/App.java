@@ -30,7 +30,7 @@ public class App {
             target.write(os);
             System.out.print("done!");
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println(e.printStackTrace());
         }
     }
 
@@ -44,11 +44,11 @@ public class App {
         int colIndex = -1;
         String temp = "";
 
-        for (int i = 0; i < numCol; i++) {
-            temp = DATA_FORMATTER.formatCellValue(sheet.getRow(0).getCell(i));
+        for (int col = 0; col < numCol; col++) {
+            temp = DATA_FORMATTER.formatCellValue(sheet.getRow(0).getCell(col));
 
             if (temp.equals(columnHeader)) {
-                colIndex = i;
+                colIndex = col;
             }
         }
 
@@ -59,10 +59,10 @@ public class App {
         ArrayList<String> tempValues = new ArrayList<>();
         Cell currentCell = null;
 
-        for (int i = 0; i < sheet.getPhysicalNumberOfRows(); i++) {
+        for (int row = 0; row < sheet.getPhysicalNumberOfRows(); row++) {
             // a blank row is considered null, hence this check
-            if (sheet.getRow(i) != null) {
-                currentCell = sheet.getRow(i).getCell(colIndex);
+            if (sheet.getRow(row) != null) {
+                currentCell = sheet.getRow(row).getCell(colIndex);
 
                 if (isEmpty(currentCell)) {
                     continue;
