@@ -30,7 +30,7 @@ public class App {
             target.write(os);
             System.out.print("done!");
         } catch (Exception e) {
-            System.out.println(e.printStackTrace());
+            e.printStackTrace();
         }
     }
 
