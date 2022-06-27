@@ -113,6 +113,9 @@ public class App {
 
                     if (isEmpty(currentRoom)) {
                         currentRoom = lastRoom;
+                    } else if (lastRoom != null && !lastRoom.equals(currentRoom)) {
+                        lastCot.setBlank();
+
                     }
                     room = DATA_FORMATTER.formatCellValue(currentRoom);
                     asset = DATA_FORMATTER.formatCellValue(currentAsset);
