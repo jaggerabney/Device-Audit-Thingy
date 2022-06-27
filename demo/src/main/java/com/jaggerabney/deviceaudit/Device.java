@@ -1,6 +1,9 @@
 package com.jaggerabney.deviceaudit;
 
+// simple object used to track the pertinent information needed for a given row in target.xlsx
 public final class Device {
+    public static final int NUM_PROPS = 7; // update as you add props!!!
+
     public int row;
     public String asset;
     public String serial;
@@ -19,7 +22,7 @@ public final class Device {
     }
 
     // lol. lmao
-    // for use in <insert function name here>
+    // for use in updateDevicesWithInventoryInfo
     public Device(int row, String asset, String serial, String location, String room, String model, String cot,
             String status) {
         this.row = row;
@@ -32,6 +35,7 @@ public final class Device {
         this.status = status;
     }
 
+    // for debugging and the like
     @Override
     public String toString() {
         return "[" + asset + ", " + serial + ", " + location + ", " + room + ", " + model + ", " + cot + ", " + status
