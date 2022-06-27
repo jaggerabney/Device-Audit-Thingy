@@ -6,6 +6,13 @@ import java.util.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 
+/*  TODO: 
+ *    - change program so that device location is specified via user input, not command line argument
+ *    - talk with Kyle to get information from various PO/budgeting sheets
+ *    - create resource file to get rid of hard-coded text/filenames
+ *    - refactor? lol
+ */
+
 public class App {
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.00");
     public static final DataFormatter DATA_FORMATTER = new DataFormatter();
