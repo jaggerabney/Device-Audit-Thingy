@@ -105,7 +105,7 @@ public class App {
             lastCot = null;
 
             for (int row = 0; row < currentSheet.getPhysicalNumberOfRows(); row++) {
-                if (currentSheet.getRow(row) != null) {
+                if (currentSheet.getRow(row) != null && !isEmpty(currentSheet.getRow(row).getCell(assetColIndex))) {
                     currentRow = currentSheet.getRow(row);
                     currentRoom = currentRow.getCell(roomColIndex);
                     currentAsset = currentRow.getCell(assetColIndex);
