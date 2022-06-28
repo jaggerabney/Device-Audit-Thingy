@@ -249,14 +249,14 @@ public class App {
                 currentSerial = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(serialColIndex));
                 currentModel = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelColIndex));
                 currentStatus = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(statusColIndex));
-
-                result.add(
-                        new Device(currentRow, device.asset, currentSerial, location, device.room, currentModel,
-                                device.cot, currentStatus));
             } else {
-                result.add(new Device(currentRow, device.asset, device.serial, location, device.room, device.model,
-                        device.cot, device.status));
+                currentSerial = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
+                currentModel = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
+                currentStatus = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
             }
+
+            result.add(new Device(currentRow, device.asset, currentSerial, location, device.room, currentModel,
+                    device.cot, currentStatus));
 
             // progress text in console is updated accordingly
             numDevicesUpdated++;
