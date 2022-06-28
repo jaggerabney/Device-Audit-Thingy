@@ -7,7 +7,6 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 
 /*  TODO: 
- *    - change program so that device location is specified via user input, not command line argument
  *    - talk with Kyle to get information from various PO/budgeting sheets
  *    - create resource file to get rid of hard-coded text/filenames
  *    - refactor? lol
@@ -40,7 +39,6 @@ public class App {
             Workbook target = loadWorkbook("target.xlsx");
             System.out.print("done!\n");
             String location = askQuestion("What school is this sheet for?");
-
             Device[] devices = createDevicesFromAuditWorkbook(audit);
 
             // uses the x = change(x) method to get around the fact that java is
@@ -141,7 +139,7 @@ public class App {
         for (int sheet = 0; sheet < numSheets; sheet++) {
             currentSheet = workbook.getSheetAt(sheet);
 
-            for (int row = 0; row < currentSheet.getPhysicalNumberOfRows(); row++) {
+            for (int row = 1; row < currentSheet.getPhysicalNumberOfRows(); row++) {
                 if (currentSheet.getRow(row) != null && currentSheet.getRow(row).getCell(assetColIndex) != null) {
                     totalDevices++;
                 }
@@ -160,7 +158,7 @@ public class App {
 
             // ...then every row in the audit workbook to create an array of Device objects
             // based specifically on the asset column.
-            for (int row = 0; row < currentSheet.getPhysicalNumberOfRows(); row++) {
+            for (int row = 1; row < currentSheet.getPhysicalNumberOfRows(); row++) {
                 if (currentSheet.getRow(row) != null && !isEmpty(currentSheet.getRow(row).getCell(assetColIndex))) {
                     currentRow = currentSheet.getRow(row);
                     currentRoom = currentRow.getCell(roomColIndex);
@@ -174,9 +172,8 @@ public class App {
                         currentRoom = lastRoom;
                         // also checks if the last specified room is different than the current room. if
                         // so, then the last specified user is no longer valid, and is gotten rid of.
-                    } else if (lastRoom != null && !lastRoom.equals(currentRoom)) {
+                    } else if (lastRoom != null && lastCot != null && !lastRoom.equals(currentRoom)) {
                         lastCot.setBlank();
-
                     }
                     room = DATA_FORMATTER.formatCellValue(currentRoom);
                     asset = DATA_FORMATTER.formatCellValue(currentAsset);
@@ -281,14 +278,14 @@ public class App {
                 modelColIndex = getIndexOfColumn(sheet, "Model Name"),
                 cotColIndex = getIndexOfColumn(sheet, "Checked Out to"),
                 statusColIndex = getIndexOfColumn(sheet, "Status");
-        double numRowsTotal = devices.length - 1, numRowsUpdated = 0; // 1 is subtracted because both vars are 0-indexed
+        double numRowsTotal = devices.length, numRowsUpdated = 0;
 
         // writes progress text for first time in console
         System.out.print("\nUpdating target.xlsx with device info: " + (int) numRowsUpdated + " / " + (int) numRowsTotal
                 + " (" + DECIMAL_FORMAT.format(((numRowsUpdated / numRowsTotal) * 100)) + "%)");
 
         // for loop starts at 1 because row 0 contains headers
-        for (int row = 1; row < devices.length; row++) {
+        for (int row = 1; row <= devices.length; row++) {
             if (sheet.getRow(row) == null) {
                 sheet.createRow(row);
             }
