@@ -13,13 +13,17 @@ import org.apache.poi.xssf.usermodel.*;
  */
 
 public class App {
-    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.00");
+    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
     public static final DataFormatter DATA_FORMATTER = new DataFormatter();
 
     public static void main(String[] args) {
         // try block is used to catch IOException errors that come with reading
         // from/writing to files
         try {
+            System.out.print("Loading config.properties...");
+            Properties props = loadProps("config.properties");
+            System.out.print("done!\n");
+
             // print statements signifying file loading are put outside of the loadWorkbook
             // method to better reflect the state of the program.
             // if they're inside the loadWorkbook method, then the program reports that it's
@@ -31,12 +35,12 @@ public class App {
             // of Device objects. the Device object is just a simple object that keeps track
             // of all pertinent information that needs to be filled out in target.xlsx:
             // asset tag, serial number, model, location, what room it's in, etc.
-            System.out.print("Loading audit.xlsx...");
-            Workbook audit = loadWorkbook("audit.xlsx");
-            System.out.print("done!\nLoading inventory.xlsx...");
-            Workbook inventory = loadWorkbook("inventory.xlsx");
-            System.out.print("done!\nLoading target.xlsx...");
-            Workbook target = loadWorkbook("target.xlsx");
+            System.out.print("Loading audit workbook...");
+            Workbook audit = loadWorkbook(props.getProperty("auditWorkbookName"));
+            System.out.print("done!\nLoading inventory workbook...");
+            Workbook inventory = loadWorkbook(props.getProperty("inventoryWorkbookName"));
+            System.out.print("done!\nLoading target workbook...");
+            Workbook target = loadWorkbook(props.getProperty("targetWorkbookName"));
             System.out.print("done!\n");
             String location = askQuestion("What school is this sheet for?");
             Device[] devices = createDevicesFromAuditWorkbook(audit);
@@ -54,13 +58,23 @@ public class App {
             target = updateTargetWorkbookWithDeviceInfo(target, devices);
 
             // writes to target.xlsx
-            System.out.print("\nWriting to target.xlsx...");
-            OutputStream os = new FileOutputStream("target.xlsx");
+            System.out.print("\nWriting to target workbook...");
+            OutputStream os = new FileOutputStream(props.getProperty("targetWorkbookName"));
             target.write(os);
             System.out.print("done!\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // loads props
+    private static Properties loadProps(String filename) throws IOException {
+        FileInputStream fis = new FileInputStream(filename);
+        Properties props = new Properties();
+        props.load(fis);
+        fis.close();
+        return props;
+
     }
 
     // small helper function for loading workbooks.
@@ -218,7 +232,7 @@ public class App {
         int currentRow = 0;
 
         // used for the progress text in the console
-        System.out.print("\nUpdating devices with info from inventory.xlsx: " + (int) numDevicesUpdated + " / "
+        System.out.print("\nUpdating devices with info from inventory workbook: " + (int) numDevicesUpdated + " / "
                 + (int) numDevicesTotal + " (" + DECIMAL_FORMAT.format(((numDevicesUpdated / numDevicesTotal) * 100))
                 + "%)");
 
@@ -247,7 +261,7 @@ public class App {
 
             // progress text in console is updated accordingly
             numDevicesUpdated++;
-            System.out.print("\rUpdating devices with info from inventory.xlsx: " + (int) numDevicesUpdated + " / "
+            System.out.print("\rUpdating devices with info from inventory workbook: " + (int) numDevicesUpdated + " / "
                     + (int) numDevicesTotal + " ("
                     + DECIMAL_FORMAT.format(((numDevicesUpdated / numDevicesTotal) * 100))
                     + "%)");
@@ -281,8 +295,9 @@ public class App {
         double numRowsTotal = devices.length, numRowsUpdated = 0;
 
         // writes progress text for first time in console
-        System.out.print("\nUpdating target.xlsx with device info: " + (int) numRowsUpdated + " / " + (int) numRowsTotal
-                + " (" + DECIMAL_FORMAT.format(((numRowsUpdated / numRowsTotal) * 100)) + "%)");
+        System.out.print(
+                "\nUpdating target workbook with device info: " + (int) numRowsUpdated + " / " + (int) numRowsTotal
+                        + " (" + DECIMAL_FORMAT.format(((numRowsUpdated / numRowsTotal) * 100)) + "%)");
 
         // for loop starts at 1 because row 0 contains headers
         for (int row = 1; row <= devices.length; row++) {
@@ -312,7 +327,7 @@ public class App {
             // updates progress text in console
             numRowsUpdated++;
             System.out.print(
-                    "\rUpdating target.xlsx with device info: " + (int) numRowsUpdated + " / " + (int) numRowsTotal
+                    "\rUpdating target workbook with device info: " + (int) numRowsUpdated + " / " + (int) numRowsTotal
                             + " (" + DECIMAL_FORMAT.format(((numRowsUpdated / numRowsTotal) * 100)) + "%)");
         }
 
