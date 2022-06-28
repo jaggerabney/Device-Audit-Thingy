@@ -15,13 +15,14 @@ import org.apache.poi.xssf.usermodel.*;
 public class App {
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
     public static final DataFormatter DATA_FORMATTER = new DataFormatter();
+    private static Properties PROPS;
 
     public static void main(String[] args) {
         // try block is used to catch IOException errors that come with reading
         // from/writing to files
         try {
             System.out.print("Loading config.properties...");
-            Properties props = loadProps("config.properties");
+            PROPS = loadProps("config.properties");
             System.out.print("done!\n");
 
             // print statements signifying file loading are put outside of the loadWorkbook
@@ -36,11 +37,11 @@ public class App {
             // of all pertinent information that needs to be filled out in target.xlsx:
             // asset tag, serial number, model, location, what room it's in, etc.
             System.out.print("Loading audit workbook...");
-            Workbook audit = loadWorkbook(props.getProperty("auditWorkbookName"));
+            Workbook audit = loadWorkbook(PROPS.getProperty("auditWorkbookName"));
             System.out.print("done!\nLoading inventory workbook...");
-            Workbook inventory = loadWorkbook(props.getProperty("inventoryWorkbookName"));
+            Workbook inventory = loadWorkbook(PROPS.getProperty("inventoryWorkbookName"));
             System.out.print("done!\nLoading target workbook...");
-            Workbook target = loadWorkbook(props.getProperty("targetWorkbookName"));
+            Workbook target = loadWorkbook(PROPS.getProperty("targetWorkbookName"));
             System.out.print("done!\n");
             String location = askQuestion("What school is this sheet for?");
             Device[] devices = createDevicesFromAuditWorkbook(audit);
@@ -59,7 +60,7 @@ public class App {
 
             // writes to target.xlsx
             System.out.print("\nWriting to target workbook...");
-            OutputStream os = new FileOutputStream(props.getProperty("targetWorkbookName"));
+            OutputStream os = new FileOutputStream(PROPS.getProperty("targetWorkbookName"));
             target.write(os);
             System.out.print("done!\n");
         } catch (Exception e) {
@@ -221,10 +222,10 @@ public class App {
     // weren't initialized in createDevicesFromAuditWorkbook
     private static Device[] updateDevicesWithInventoryInfo(Workbook workbook, Device[] devices, String location) {
         Sheet sheet = workbook.getSheetAt(0);
-        int assetColIndex = getIndexOfColumn(sheet, "AssetTag"),
-                serialColIndex = getIndexOfColumn(sheet, "SerialNum"),
-                modelColIndex = getIndexOfColumn(sheet, "ItemDesc"),
-                statusColIndex = getIndexOfColumn(sheet, "Status");
+        int assetColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookAssetColName")),
+                serialColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookSerialColName")),
+                modelColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookModelColName")),
+                statusColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookStatusColName"));
         double numDevicesTotal = devices.length, numDevicesUpdated = 0;
         String currentSerial = "", currentModel = "", currentStatus = "";
         List<String> assetTags = Arrays.asList(getValuesOfColumn(sheet, assetColIndex));
@@ -285,13 +286,13 @@ public class App {
         Device currentDevice = null;
         // i very well could've used hard-coded numbers here, but i don't know if kyle
         // will target.xlsx's format the same
-        int assetColIndex = getIndexOfColumn(sheet, "AssetTag"),
-                serialColIndex = getIndexOfColumn(sheet, "Serial Number"),
-                locationColIndex = getIndexOfColumn(sheet, "Location"),
-                roomColIndex = getIndexOfColumn(sheet, "Room"),
-                modelColIndex = getIndexOfColumn(sheet, "Model Name"),
-                cotColIndex = getIndexOfColumn(sheet, "Checked Out to"),
-                statusColIndex = getIndexOfColumn(sheet, "Status");
+        int assetColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookAssetColName")),
+                serialColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookSerialColName")),
+                locationColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookLocationColName")),
+                roomColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookRoomColName")),
+                modelColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookModelColName")),
+                cotColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookUserColName")),
+                statusColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookStatusColName"));
         double numRowsTotal = devices.length, numRowsUpdated = 0;
 
         // writes progress text for first time in console
