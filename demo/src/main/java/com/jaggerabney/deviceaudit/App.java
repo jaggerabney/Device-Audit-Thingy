@@ -8,8 +8,6 @@ import org.apache.poi.xssf.usermodel.*;
 
 /*  TODO: 
  *    - talk with Kyle to get information from various PO/budgeting sheets
- *    - create resource file to get rid of hard-coded text/filenames
- *    - refactor? lol
  */
 
 public class App {
