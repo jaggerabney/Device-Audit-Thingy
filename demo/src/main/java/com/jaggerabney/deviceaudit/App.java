@@ -39,6 +39,8 @@ public class App {
             System.out.print("done!\nLoading target.xlsx...");
             Workbook target = loadWorkbook("target.xlsx");
             System.out.print("done!\n");
+            String location = askQuestion("What school is this sheet for?");
+
             Device[] devices = createDevicesFromAuditWorkbook(audit);
 
             // uses the x = change(x) method to get around the fact that java is
@@ -47,7 +49,7 @@ public class App {
             // updateDevicesWithInventoryInfo pulls the rest of the needed info - S/N,
             // model, status, etc. - and rewrites all of the objects in the devices array
             // with these updated copies. see the Device file for more information
-            devices = updateDevicesWithInventoryInfo(inventory, devices, args[0]);
+            devices = updateDevicesWithInventoryInfo(inventory, devices, location);
             // then, the target workbook (which is merely a Java representation of the
             // workbook, not the actual workbook itself) is updated so that the *actual*
             // target.xlsx workbook can be written to
@@ -57,7 +59,7 @@ public class App {
             System.out.print("\nWriting to target.xlsx...");
             OutputStream os = new FileOutputStream("target.xlsx");
             target.write(os);
-            System.out.print("done!");
+            System.out.print("done!\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -317,6 +319,14 @@ public class App {
                             + " (" + DECIMAL_FORMAT.format(((numRowsUpdated / numRowsTotal) * 100)) + "%)");
         }
 
+        return result;
+    }
+
+    private static String askQuestion(String question) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print(question + " ");
+        String result = scanner.nextLine();
+        scanner.close();
         return result;
     }
 
