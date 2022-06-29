@@ -137,7 +137,9 @@ public class App {
         // because different techs named their columns different things. for example, i
         // tended to name my asset column "Asset", whereas other techs named theirs
         // "Tag" or "Tag #".
-        int roomColIndex = 0, assetColIndex = 1, cotColIndex = 2;
+        int roomColIndex = Integer.valueOf(PROPS.getProperty("auditWorkbookRoomColIndex")),
+                assetColIndex = Integer.valueOf(PROPS.getProperty("auditWorkbookAssetColIndex")),
+                cotColIndex = Integer.valueOf(PROPS.getProperty("auditWorkbookUserColIndex"));
         double totalDevices = 0, numDevicesCreated = 0;
         Cell currentRoom, currentAsset, currentCot, lastRoom, lastCot;
         String room, asset, cot;
@@ -171,6 +173,7 @@ public class App {
 
             // ...then every row in the audit workbook to create an array of Device objects
             // based specifically on the asset column.
+            // row is initialized to 1 to skip the header row
             for (int row = 1; row < currentSheet.getPhysicalNumberOfRows(); row++) {
                 if (currentSheet.getRow(row) != null && !isEmpty(currentSheet.getRow(row).getCell(assetColIndex))) {
                     currentRow = currentSheet.getRow(row);
