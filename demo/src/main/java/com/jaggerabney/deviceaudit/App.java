@@ -8,6 +8,7 @@ import org.apache.poi.xssf.usermodel.*;
 
 /*  TODO: 
  *    - talk with Kyle to get information from various PO/budgeting sheets
+ *    - make program recognize serial numbers in asset col and work accordingly
  */
 
 public class App {
@@ -38,9 +39,9 @@ public class App {
             Workbook audit = loadWorkbook(PROPS.getProperty("auditWorkbookName"));
             System.out.print("done!\nLoading inventory workbook...");
             Workbook inventory = loadWorkbook(PROPS.getProperty("inventoryWorkbookName"));
-            System.out.print("done!\nLoading target workbook...");
-            Workbook target = loadWorkbook(PROPS.getProperty("targetWorkbookName"));
             System.out.print("done!\n");
+            // Workbook target = loadWorkbook(PROPS.getProperty("targetWorkbookName"));
+            // System.out.print("done!\n");
             String location = askQuestion("What school is this sheet for?");
             Device[] devices = createDevicesFromAuditWorkbook(audit);
 
@@ -54,13 +55,15 @@ public class App {
             // then, the target workbook (which is merely a Java representation of the
             // workbook, not the actual workbook itself) is updated so that the *actual*
             // target.xlsx workbook can be written to
-            target = updateTargetWorkbookWithDeviceInfo(target, devices);
+            Workbook target = createTargetWorkbookWithDeviceInfo(devices);
 
             // writes to target.xlsx
             System.out.print("\nWriting to target workbook...");
             OutputStream os = new FileOutputStream(PROPS.getProperty("targetWorkbookName"));
             target.write(os);
-            System.out.print("done!\n");
+            System.out.print("done!\nClosing target workbook...");
+            target.close();
+            System.out.print("closed!\n");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -276,24 +279,25 @@ public class App {
     // function used in main method to update target workbook object with info from
     // the devices array. note that this *doesn't* actually write to the target.xlsx
     // file; this just updates the corresponding object.
-    private static Workbook updateTargetWorkbookWithDeviceInfo(Workbook workbook, Device[] devices) {
-        // the below line is used to get around the fact that Java is pass-by-value.
-        // it's a dumb solution, but It Works(tm).
-        Workbook result = workbook;
-        // since there's only one sheet in target.xlsx, a reference to this sheet is
-        // obtained early on for simplicity's sake
-        Sheet sheet = result.getSheetAt(0);
+    private static Workbook createTargetWorkbookWithDeviceInfo(Device[] devices) {
+        Workbook result = new XSSFWorkbook();
+        Sheet sheet = result.createSheet("Data");
         Row currentRow = null;
         Device currentDevice = null;
-        // i very well could've used hard-coded numbers here, but i don't know if kyle
-        // will target.xlsx's format the same
-        int assetColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookAssetColName")),
-                serialColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookSerialColName")),
-                locationColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookLocationColName")),
-                roomColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookRoomColName")),
-                modelColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookModelColName")),
-                cotColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookUserColName")),
-                statusColIndex = getIndexOfColumn(sheet, PROPS.getProperty("targetWorkbookStatusColName"));
+        int assetColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookAssetColIndex")),
+                serialColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookSerialColIndex")),
+                locationColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookLocationColIndex")),
+                roomColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookRoomColIndex")),
+                modelColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookModelColIndex")),
+                cotColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookUserColIndex")),
+                statusColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookStatusColIndex"));
+        String assetColName = PROPS.getProperty("targetWorkbookAssetColName"),
+                serialColName = PROPS.getProperty("targetWorkbookSerialColName"),
+                locationColName = PROPS.getProperty("targetWorkbookLocationColName"),
+                roomColName = PROPS.getProperty("targetWorkbookRoomColName"),
+                modelColName = PROPS.getProperty("targetWorkbookModelColName"),
+                cotColName = PROPS.getProperty("targetWorkbookUserColName"),
+                statusColName = PROPS.getProperty("targetWorkbookStatusColName");
         double numRowsTotal = devices.length, numRowsUpdated = 0;
 
         // writes progress text for first time in console
@@ -301,11 +305,23 @@ public class App {
                 "\nUpdating target workbook with device info: " + (int) numRowsUpdated + " / " + (int) numRowsTotal
                         + " (" + DECIMAL_FORMAT.format(((numRowsUpdated / numRowsTotal) * 100)) + "%)");
 
+        // create headers
+        Row headerRow = sheet.createRow(0);
+        for (int col = 0; col < Device.NUM_PROPS; col++) {
+            headerRow.createCell(col);
+        }
+
+        headerRow.getCell(assetColIndex).setCellValue(assetColName);
+        headerRow.getCell(serialColIndex).setCellValue(serialColName);
+        headerRow.getCell(locationColIndex).setCellValue(locationColName);
+        headerRow.getCell(roomColIndex).setCellValue(roomColName);
+        headerRow.getCell(modelColIndex).setCellValue(modelColName);
+        headerRow.getCell(cotColIndex).setCellValue(cotColName);
+        headerRow.getCell(statusColIndex).setCellValue(statusColName);
+
         // for loop starts at 1 because row 0 contains headers
         for (int row = 1; row <= devices.length; row++) {
-            if (sheet.getRow(row) == null) {
-                sheet.createRow(row);
-            }
+            sheet.createRow(row);
             currentRow = sheet.getRow(row);
             currentDevice = devices[row - 1]; // because arrays are 0-indexed!
 
