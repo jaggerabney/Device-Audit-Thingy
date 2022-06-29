@@ -3,6 +3,8 @@ package com.jaggerabney.deviceaudit;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+import javax.xml.parsers.*;
+import org.w3c.dom.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 
@@ -238,6 +240,10 @@ public class App {
         }
 
         return tempDevices.toArray(new Device[0]);
+    }
+
+    private static void temp() {
+
     }
 
     // function used in main method to initialize the Device objects' fields that
