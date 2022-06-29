@@ -13,7 +13,8 @@ public class Config {
 
     public static final String auditWorkbookName = PROPS.getProperty("auditWorkbookName"),
             inventoryWorkbookName = PROPS.getProperty("inventoryWorkbookName"),
-            targetWorkbookName = PROPS.getProperty("targetWorkbookName");
+            targetWorkbookName = PROPS.getProperty("targetWorkbookName"),
+            targetWorkbookSheetName = PROPS.getProperty("targetWorkbookSheetName");
 
     public static final Col inventoryWorkbookAssetCol = Col.newCol(
             PROPS.getProperty("inventoryWorkbookAssetColName"),
@@ -50,7 +51,13 @@ public class Config {
             .asList(PROPS.getProperty("targetWorkbookCols").split("|"));
 
     public static final String cantFindAssetInInventoryMessage = PROPS.getProperty("cantFindAssetInInventoryMessage"),
-            targetWorkbookAlreadyExistsMessage = PROPS.getProperty("targetWorkbookAlreadyExistsMessage");
+            targetWorkbookAlreadyExistsMessage = PROPS.getProperty("targetWorkbookAlreadyExistsMessage"),
+            loadingAuditWorkbookMessage = PROPS.getProperty("loadingAuditWorkbookMessage"),
+            loadingInventoryWorkbookMessage = PROPS.getProperty("loadingInventoryWorkbookMessage"),
+            confirmationMessage = PROPS.getProperty("confirmationMessage"),
+            locationQuestionMessage = PROPS.getProperty("locationQuestionMessage"),
+            writingToTargetWorkbookMessage = PROPS.getProperty("writingToTargetWorkbookMessage"),
+            closingTargetWorkbookMessage = PROPS.getProperty("closingTargetWorkbookMessage");
 
     private static Properties loadProps(String filename) {
         try {

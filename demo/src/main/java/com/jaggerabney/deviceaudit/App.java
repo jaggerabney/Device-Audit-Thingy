@@ -3,8 +3,6 @@ package com.jaggerabney.deviceaudit;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-import javax.xml.parsers.*;
-import org.w3c.dom.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 
@@ -16,17 +14,12 @@ public class App {
     public static final Scanner SCANNER = new Scanner(System.in);
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
     public static final DataFormatter DATA_FORMATTER = new DataFormatter();
-    private static Properties PROPS;
 
     public static void main(String[] args) {
         // try block is used to catch IOException errors that come with reading
         // from/writing to files
         try {
-            System.out.print("Loading config.properties...");
-            PROPS = loadProps("config.properties");
-            System.out.print("done!\n");
-
-            File targetFile = new File(PROPS.getProperty("targetWorkbookName"));
+            File targetFile = new File(Config.targetWorkbookName);
             if (targetFile.exists()) {
                 targetWorkbookExistsHandler();
             }
@@ -42,18 +35,19 @@ public class App {
             // of Device objects. the Device object is just a simple object that keeps track
             // of all pertinent information that needs to be filled out in target.xlsx:
             // asset tag, serial number, model, location, what room it's in, etc.
-            System.out.print("Loading audit workbook...");
-            Workbook audit = loadWorkbook(PROPS.getProperty("auditWorkbookName"));
-            System.out.print("done!\nLoading inventory workbook...");
-            Workbook inventory = loadWorkbook(PROPS.getProperty("inventoryWorkbookName"));
-            System.out.print("done!\n");
-            // Workbook target = loadWorkbook(PROPS.getProperty("targetWorkbookName"));
-            // System.out.print("done!\n");
-            String location = askQuestion("What school is this sheet for?");
-            Device[] devices = createDevicesFromAuditWorkbook(audit);
+            System.out.print(Config.loadingAuditWorkbookMessage);
+            Workbook audit = loadWorkbook(Config.auditWorkbookName);
+            System.out.print(Config.confirmationMessage);
+            System.out.println();
 
-            // uses the x = change(x) method to get around the fact that java is
-            // pass-by-value. the Device objects in the devices array initially only have
+            System.out.print(Config.loadingInventoryWorkbookMessage);
+            Workbook inventory = loadWorkbook(Config.inventoryWorkbookName);
+            System.out.print(Config.confirmationMessage);
+            System.out.println();
+
+            String location = askQuestion(Config.locationQuestionMessage);
+            Device[] devices = createDevicesFromAuditWorkbook(audit);
+            // the Device objects in the devices array initially only have
             // their asset, room, and cot (checked out to) fields written to at first. the
             // updateDevicesWithInventoryInfo pulls the rest of the needed info - S/N,
             // model, status, etc. - and rewrites all of the objects in the devices array
@@ -65,27 +59,20 @@ public class App {
             Workbook target = createTargetWorkbookWithDeviceInfo(devices);
 
             // writes to target.xlsx
-            System.out.print("\nWriting to target workbook...");
-            OutputStream os = new FileOutputStream(PROPS.getProperty("targetWorkbookName"));
+            System.out.print(Config.writingToTargetWorkbookMessage);
+            OutputStream os = new FileOutputStream(Config.targetWorkbookName);
             target.write(os);
-            System.out.print("done!\nClosing target workbook...");
+            System.out.print(Config.confirmationMessage);
+            System.out.println();
+
+            System.out.print(Config.closingTargetWorkbookMessage);
             target.close();
-            System.out.print("closed!\n");
+            System.out.print(Config.confirmationMessage);
 
             SCANNER.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    // loads props
-    private static Properties loadProps(String filename) throws IOException {
-        FileInputStream fis = new FileInputStream(filename);
-        Properties props = new Properties();
-        props.load(fis);
-        fis.close();
-        return props;
-
     }
 
     // small helper function for loading workbooks.
@@ -96,7 +83,7 @@ public class App {
     }
 
     private static void targetWorkbookExistsHandler() {
-        String answer = askQuestion(PROPS.getProperty("targetWorkbookExistsMessage"));
+        String answer = askQuestion(Config.targetWorkbookAlreadyExistsMessage);
         if (answer.equalsIgnoreCase("Y")) {
             return;
         } else {
@@ -158,9 +145,9 @@ public class App {
         // because different techs named their columns different things. for example, i
         // tended to name my asset column "Asset", whereas other techs named theirs
         // "Tag" or "Tag #".
-        int roomColIndex = Integer.valueOf(PROPS.getProperty("auditWorkbookRoomColIndex")),
-                assetColIndex = Integer.valueOf(PROPS.getProperty("auditWorkbookAssetColIndex")),
-                cotColIndex = Integer.valueOf(PROPS.getProperty("auditWorkbookUserColIndex"));
+        int roomColIndex = Config.auditWorkbookRoomColIndex,
+                assetColIndex = Config.auditWorkbookAssetColIndex,
+                cotColIndex = Config.auditWorkbookUserColIndex;
         double totalDevices = 0, numDevicesCreated = 0;
         Cell currentRoom, currentAsset, currentCot, lastRoom, lastCot;
         String room, asset, cot;
@@ -228,8 +215,8 @@ public class App {
                     // device is added to the temporary ArrayList, and the progress text is updated
                     // accordingly.
 
-                    tempDevices.add(new Device(room, asset, cot, asset.trim().length() <= Integer
-                            .valueOf(PROPS.getProperty("auditWorkbookAssetThreshold").trim())));
+                    tempDevices.add(
+                            new Device(room, asset, cot, asset.trim().length() <= Config.auditWorkbookAssetThreshold));
                     numDevicesCreated++;
                     System.out.print("\rCreating devices from audit workbook: " + (int) numDevicesCreated + " / "
                             + (int) totalDevices + " ("
@@ -242,19 +229,15 @@ public class App {
         return tempDevices.toArray(new Device[0]);
     }
 
-    private static void temp() {
-
-    }
-
     // function used in main method to initialize the Device objects' fields that
     // weren't initialized in createDevicesFromAuditWorkbook
     private static Device[] updateDevicesWithInventoryInfo(Workbook workbook, Device[] devices, String location)
             throws Exception {
         Sheet sheet = workbook.getSheetAt(0);
-        int assetColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookAssetColName")),
-                serialColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookSerialColName")),
-                modelColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookModelColName")),
-                statusColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookStatusColName"));
+        int assetColIndex = Config.inventoryWorkbookAssetCol.index,
+                serialColIndex = Config.inventoryWorkbookSerialCol.index,
+                modelColIndex = Config.inventoryWorkbookModelCol.index,
+                statusColIndex = Config.inventoryWorkbookStatusCol.index;
         double numDevicesTotal = devices.length, numDevicesUpdated = 0;
         String currentAsset = "", currentSerial = "", currentModel = "", currentStatus = "";
         List<String> assetTags = Arrays.asList(getValuesOfColumn(sheet, assetColIndex));
@@ -262,6 +245,7 @@ public class App {
         ArrayList<Device> result = new ArrayList<>();
         int currentRow = 0;
         boolean deviceHasAssetPopulated = false;
+        String cantFindAssetInInventoryWorkbookMessage = Config.cantFindAssetInInventoryMessage;
 
         // used for the progress text in the console
         System.out.print("\nUpdating devices with info from inventory workbook: " + (int) numDevicesUpdated + " / "
@@ -286,6 +270,7 @@ public class App {
 
             // if currentRow == -1, then the device is *not* in inventory.xlsx. thus, this
             // information is not filled.
+
             if (currentRow != -1 && deviceHasAssetPopulated) {
                 currentSerial = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(serialColIndex));
                 currentModel = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelColIndex));
@@ -295,13 +280,13 @@ public class App {
                 currentModel = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelColIndex));
                 currentStatus = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(statusColIndex));
             } else if (currentRow == -1 && deviceHasAssetPopulated) {
-                currentSerial = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
-                currentModel = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
-                currentStatus = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
+                currentSerial = cantFindAssetInInventoryWorkbookMessage;
+                currentModel = cantFindAssetInInventoryWorkbookMessage;
+                currentStatus = cantFindAssetInInventoryWorkbookMessage;
             } else if (currentRow == -1 && !deviceHasAssetPopulated) {
-                currentAsset = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
-                currentModel = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
-                currentStatus = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
+                currentAsset = cantFindAssetInInventoryWorkbookMessage;
+                currentModel = cantFindAssetInInventoryWorkbookMessage;
+                currentStatus = cantFindAssetInInventoryWorkbookMessage;
             } else {
                 throw new Exception("Invalid row state!");
             }
@@ -331,23 +316,10 @@ public class App {
     // file; this just updates the corresponding object.
     private static Workbook createTargetWorkbookWithDeviceInfo(Device[] devices) {
         Workbook result = new XSSFWorkbook();
-        Sheet sheet = result.createSheet("Data");
+        Sheet sheet = result.createSheet(Config.targetWorkbookSheetName);
         Row currentRow = null;
+        Cell currentCell = null;
         Device currentDevice = null;
-        int assetColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookAssetColIndex")),
-                serialColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookSerialColIndex")),
-                locationColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookLocationColIndex")),
-                roomColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookRoomColIndex")),
-                modelColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookModelColIndex")),
-                cotColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookUserColIndex")),
-                statusColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookStatusColIndex"));
-        String assetColName = PROPS.getProperty("targetWorkbookAssetColName"),
-                serialColName = PROPS.getProperty("targetWorkbookSerialColName"),
-                locationColName = PROPS.getProperty("targetWorkbookLocationColName"),
-                roomColName = PROPS.getProperty("targetWorkbookRoomColName"),
-                modelColName = PROPS.getProperty("targetWorkbookModelColName"),
-                cotColName = PROPS.getProperty("targetWorkbookUserColName"),
-                statusColName = PROPS.getProperty("targetWorkbookStatusColName");
         double numRowsTotal = devices.length, numRowsUpdated = 0;
 
         // writes progress text for first time in console
@@ -356,18 +328,11 @@ public class App {
                         + " (" + DECIMAL_FORMAT.format(((numRowsUpdated / numRowsTotal) * 100)) + "%)");
 
         // create headers
-        Row headerRow = sheet.createRow(0);
+        currentRow = sheet.getRow(0);
         for (int col = 0; col < Device.NUM_PROPS; col++) {
-            headerRow.createCell(col);
+            currentCell = currentRow.createCell(col);
+            currentCell.setCellValue(Config.targetWorkbookColumns.get(col));
         }
-
-        headerRow.getCell(assetColIndex).setCellValue(assetColName);
-        headerRow.getCell(serialColIndex).setCellValue(serialColName);
-        headerRow.getCell(locationColIndex).setCellValue(locationColName);
-        headerRow.getCell(roomColIndex).setCellValue(roomColName);
-        headerRow.getCell(modelColIndex).setCellValue(modelColName);
-        headerRow.getCell(cotColIndex).setCellValue(cotColName);
-        headerRow.getCell(statusColIndex).setCellValue(statusColName);
 
         // for loop starts at 1 because row 0 contains headers
         for (int row = 1; row <= devices.length; row++) {
@@ -379,18 +344,10 @@ public class App {
             // but the actual cell itself needs to be created as well. otherwise, a
             // NullPointerException is thrown
             for (int col = 0; col < Device.NUM_PROPS; col++) {
-                currentRow.createCell(col);
-            }
+                currentCell = currentRow.createCell(col);
 
-            // ooga booga caveman brain solution, i know. i'd like to think that i'll
-            // refactor this at some point
-            currentRow.getCell(assetColIndex).setCellValue(currentDevice.asset);
-            currentRow.getCell(serialColIndex).setCellValue(currentDevice.serial);
-            currentRow.getCell(locationColIndex).setCellValue(currentDevice.location);
-            currentRow.getCell(roomColIndex).setCellValue(currentDevice.room);
-            currentRow.getCell(modelColIndex).setCellValue(currentDevice.model);
-            currentRow.getCell(cotColIndex).setCellValue(currentDevice.cot);
-            currentRow.getCell(statusColIndex).setCellValue(currentDevice.status);
+                // TODO: add Device fields to cells!
+            }
 
             // updates progress text in console
             numRowsUpdated++;
