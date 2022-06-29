@@ -8,7 +8,6 @@ import org.apache.poi.xssf.usermodel.*;
 
 /*  TODO: 
  *    - talk with Kyle to get information from various PO/budgeting sheets
- *    - make program recognize serial numbers in asset col and work accordingly
  */
 
 public class App {
