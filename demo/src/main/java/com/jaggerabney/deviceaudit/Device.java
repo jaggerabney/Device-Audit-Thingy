@@ -4,7 +4,6 @@ package com.jaggerabney.deviceaudit;
 public final class Device {
     public static final int NUM_PROPS = 7; // update as you add props!!!
 
-    public int row;
     public String asset;
     public String serial;
     public String location;
@@ -14,18 +13,20 @@ public final class Device {
     public String status;
 
     // for use in createDevicesFromWorkbook
-    public Device(int row, String room, String asset, String cot) {
-        this.row = row;
+    public Device(String room, String assetOrSerial, String cot, boolean isAssetTag) {
         this.room = room;
-        this.asset = asset;
+        if (isAssetTag) {
+            this.asset = assetOrSerial;
+        } else {
+            this.serial = assetOrSerial;
+        }
         this.cot = cot;
     }
 
     // lol. lmao
     // for use in updateDevicesWithInventoryInfo
-    public Device(int row, String asset, String serial, String location, String room, String model, String cot,
+    public Device(String asset, String serial, String location, String room, String model, String cot,
             String status) {
-        this.row = row;
         this.asset = asset;
         this.serial = serial;
         this.location = location;

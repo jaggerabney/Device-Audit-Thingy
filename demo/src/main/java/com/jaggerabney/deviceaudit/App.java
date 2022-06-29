@@ -226,7 +226,9 @@ public class App {
                     lastCot = currentCot;
                     // device is added to the temporary ArrayList, and the progress text is updated
                     // accordingly.
-                    tempDevices.add(new Device(row, room, asset, cot));
+
+                    tempDevices.add(new Device(room, asset, cot, asset.trim().length() <= Integer
+                            .valueOf(PROPS.getProperty("auditWorkbookAssetThreshold").trim())));
                     numDevicesCreated++;
                     System.out.print("\rCreating devices from audit workbook: " + (int) numDevicesCreated + " / "
                             + (int) totalDevices + " ("
@@ -241,17 +243,20 @@ public class App {
 
     // function used in main method to initialize the Device objects' fields that
     // weren't initialized in createDevicesFromAuditWorkbook
-    private static Device[] updateDevicesWithInventoryInfo(Workbook workbook, Device[] devices, String location) {
+    private static Device[] updateDevicesWithInventoryInfo(Workbook workbook, Device[] devices, String location)
+            throws Exception {
         Sheet sheet = workbook.getSheetAt(0);
         int assetColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookAssetColName")),
                 serialColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookSerialColName")),
                 modelColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookModelColName")),
                 statusColIndex = getIndexOfColumn(sheet, PROPS.getProperty("inventoryWorkbookStatusColName"));
         double numDevicesTotal = devices.length, numDevicesUpdated = 0;
-        String currentSerial = "", currentModel = "", currentStatus = "";
+        String currentAsset = "", currentSerial = "", currentModel = "", currentStatus = "";
         List<String> assetTags = Arrays.asList(getValuesOfColumn(sheet, assetColIndex));
+        List<String> serialNums = Arrays.asList(getValuesOfColumn(sheet, serialColIndex));
         ArrayList<Device> result = new ArrayList<>();
         int currentRow = 0;
+        boolean deviceHasAssetPopulated = false;
 
         // used for the progress text in the console
         System.out.print("\nUpdating devices with info from inventory workbook: " + (int) numDevicesUpdated + " / "
@@ -264,22 +269,45 @@ public class App {
         // inventory.xlsx has no blank rows in it, it's assumed that the index of an
         // asset tag in assetTags == the row that it's in inside inventory.xlsx.
         for (Device device : devices) {
-            currentRow = assetTags.indexOf(device.asset);
+            if (device.asset != null && device.serial == null) {
+                deviceHasAssetPopulated = true;
+                currentRow = assetTags.indexOf(device.asset);
+            } else if (device.asset == null && device.serial != null) {
+                deviceHasAssetPopulated = false;
+                currentRow = serialNums.indexOf(device.serial);
+            } else {
+                throw new Exception("Invalid object state!");
+            }
 
             // if currentRow == -1, then the device is *not* in inventory.xlsx. thus, this
             // information is not filled.
-            if (currentRow != -1) {
+            if (currentRow != -1 && deviceHasAssetPopulated) {
                 currentSerial = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(serialColIndex));
                 currentModel = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelColIndex));
                 currentStatus = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(statusColIndex));
-            } else {
+            } else if (currentRow != -1 && !deviceHasAssetPopulated) {
+                currentAsset = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(assetColIndex));
+                currentModel = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelColIndex));
+                currentStatus = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(statusColIndex));
+            } else if (currentRow == -1 && deviceHasAssetPopulated) {
                 currentSerial = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
                 currentModel = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
                 currentStatus = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
+            } else if (currentRow == -1 && !deviceHasAssetPopulated) {
+                currentAsset = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
+                currentModel = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
+                currentStatus = PROPS.getProperty("cantFindAssetInInventoryWorkbookMessage");
+            } else {
+                throw new Exception("Invalid row state!");
             }
 
-            result.add(new Device(currentRow, device.asset, currentSerial, location, device.room, currentModel,
-                    device.cot, currentStatus));
+            if (deviceHasAssetPopulated) {
+                result.add(new Device(device.asset, currentSerial, location, device.room, currentModel,
+                        device.cot, currentStatus));
+            } else {
+                result.add(new Device(currentAsset, device.serial, location, device.room, currentModel,
+                        device.cot, currentStatus));
+            }
 
             // progress text in console is updated accordingly
             numDevicesUpdated++;
