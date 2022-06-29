@@ -12,6 +12,7 @@ import org.apache.poi.xssf.usermodel.*;
  */
 
 public class App {
+    public static final Scanner SCANNER = new Scanner(System.in);
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
     public static final DataFormatter DATA_FORMATTER = new DataFormatter();
     private static Properties PROPS;
@@ -23,6 +24,11 @@ public class App {
             System.out.print("Loading config.properties...");
             PROPS = loadProps("config.properties");
             System.out.print("done!\n");
+
+            File targetFile = new File(PROPS.getProperty("targetWorkbookName"));
+            if (targetFile.exists()) {
+                targetWorkbookExistsHandler();
+            }
 
             // print statements signifying file loading are put outside of the loadWorkbook
             // method to better reflect the state of the program.
@@ -64,6 +70,8 @@ public class App {
             System.out.print("done!\nClosing target workbook...");
             target.close();
             System.out.print("closed!\n");
+
+            SCANNER.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -84,6 +92,15 @@ public class App {
     private static XSSFWorkbook loadWorkbook(String filename) throws Exception {
         InputStream is = new FileInputStream(filename);
         return new XSSFWorkbook(is);
+    }
+
+    private static void targetWorkbookExistsHandler() {
+        String answer = askQuestion(PROPS.getProperty("targetWorkbookExistsMessage"));
+        if (answer.equalsIgnoreCase("Y")) {
+            return;
+        } else {
+            System.exit(0);
+        }
     }
 
     // helper function used to find the index of a column in a given sheet. since
@@ -353,10 +370,8 @@ public class App {
     }
 
     private static String askQuestion(String question) {
-        Scanner scanner = new Scanner(System.in);
         System.out.print(question + " ");
-        String result = scanner.nextLine();
-        scanner.close();
+        String result = SCANNER.nextLine();
         return result;
     }
 
