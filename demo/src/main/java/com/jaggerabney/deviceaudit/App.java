@@ -8,7 +8,6 @@ import org.apache.poi.xssf.usermodel.*;
 
 /*  TODO: 
  *    - talk with Kyle to get information from various PO/budgeting sheets
- *    - refactor rest of program to remove *all* hard-coded text
  *    - create function for loading workbook and displaying console progress text
  */
 
@@ -37,16 +36,20 @@ public class App {
             // of Device objects. the Device object is just a simple object that keeps track
             // of all pertinent information that needs to be filled out in target.xlsx:
             // asset tag, serial number, model, location, what room it's in, etc.
-            System.out.print(Config.loadingAuditWorkbookMessage);
-            Workbook audit = loadWorkbook(Config.auditWorkbookName);
-            System.out.print(Config.confirmationMessage);
-            System.out.println();
-
-            System.out.print(Config.loadingInventoryWorkbookMessage);
-            Workbook inventory = loadWorkbook(Config.inventoryWorkbookName);
-            System.out.print(Config.confirmationMessage);
-            System.out.println();
-
+            Workbook audit = functionWithConsoleProgressText(Config.loadingAuditWorkbookMessage,
+                    new Callable<Workbook>() {
+                        @Override
+                        public Workbook call() {
+                            return loadWorkbook(Config.auditWorkbookName);
+                        }
+                    }, Config.confirmationMessage);
+            Workbook inventory = functionWithConsoleProgressText(Config.loadingInventoryWorkbookMessage,
+                    new Callable<Workbook>() {
+                        @Override
+                        public Workbook call() {
+                            return loadWorkbook(Config.inventoryWorkbookName);
+                        }
+                    }, Config.confirmationMessage);
             String location = askQuestion(Config.locationQuestionMessage);
             Device[] devices = createDevicesFromAuditWorkbook(audit);
             // the Device objects in the devices array initially only have
@@ -58,20 +61,36 @@ public class App {
             // then, the target workbook (which is merely a Java representation of the
             // workbook, not the actual workbook itself) is updated so that the *actual*
             // target.xlsx workbook can be written to
-            Workbook target = createTargetWorkbookWithDeviceInfo(devices);
+            final Workbook target = createTargetWorkbookWithDeviceInfo(devices);
 
             // writes to target.xlsx
-            System.out.print(Config.writingToTargetWorkbookMessage);
-            OutputStream os = new FileOutputStream(Config.targetWorkbookName);
-            target.write(os);
-            System.out.print(Config.confirmationMessage);
-            System.out.println();
+            functionWithConsoleProgressText(Config.writingToTargetWorkbookMessage, new Callable<Void>() {
+                @Override
+                public Void call() {
+                    try {
+                        OutputStream os = new FileOutputStream(Config.targetWorkbookName);
+                        target.write(os);
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                        System.exit(2);
+                    }
 
-            System.out.print(Config.closingTargetWorkbookMessage);
-            target.close();
-            System.out.print(Config.confirmationMessage);
-
-            SCANNER.close();
+                    return null;
+                }
+            }, Config.confirmationMessage);
+            functionWithConsoleProgressText(Config.closingTargetWorkbookMessage, new Callable<Void>() {
+                @Override
+                public Void call() {
+                    try {
+                        target.close();
+                        SCANNER.close();
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                        System.exit(3);
+                    }
+                    return null;
+                }
+            }, Config.confirmationMessage);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -79,9 +98,16 @@ public class App {
 
     // small helper function for loading workbooks.
     // XSSFWorkbook is a concrete class, whereas Workbook is an interface
-    private static XSSFWorkbook loadWorkbook(String filename) throws Exception {
-        InputStream is = new FileInputStream(filename);
-        return new XSSFWorkbook(is);
+    private static XSSFWorkbook loadWorkbook(String filename) {
+        try {
+            InputStream is = new FileInputStream(filename);
+            return new XSSFWorkbook(is);
+        } catch (IOException ioe) {
+            System.out.println(); // for formatting
+            ioe.printStackTrace();
+            System.exit(1);
+            return null;
+        }
     }
 
     private static void targetWorkbookAlreadyExistsHandler() {
@@ -357,6 +383,14 @@ public class App {
 
     private static String consoleProgressPercentHelper(double current, double total) {
         return (int) current + " / " + (int) total + " (" + DECIMAL_FORMAT.format((current / total) * 100) + "%)";
+    }
+
+    private static <T> T functionWithConsoleProgressText(String beforeText, Callable<T> function, String afterText) {
+        System.out.print(beforeText);
+        T result = function.call();
+        System.out.print(afterText);
+        System.out.println();
+        return result;
     }
 
     private static String askQuestion(String question) {
