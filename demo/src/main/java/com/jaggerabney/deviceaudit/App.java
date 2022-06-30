@@ -8,11 +8,13 @@ import org.apache.poi.xssf.usermodel.*;
 
 /*  TODO: 
  *    - talk with Kyle to get information from various PO/budgeting sheets
+ *    - refactor rest of program to remove *all* hard-coded text
+ *    - create function for loading workbook and displaying console progress text
  */
 
 public class App {
     public static final Scanner SCANNER = new Scanner(System.in);
-    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.00");
+    public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(Config.decimalFormatPattern);
     public static final DataFormatter DATA_FORMATTER = new DataFormatter();
 
     public static void main(String[] args) {
@@ -21,7 +23,7 @@ public class App {
         try {
             File targetFile = new File(Config.targetWorkbookName);
             if (targetFile.exists()) {
-                targetWorkbookExistsHandler();
+                targetWorkbookAlreadyExistsHandler();
             }
 
             // print statements signifying file loading are put outside of the loadWorkbook
@@ -82,12 +84,14 @@ public class App {
         return new XSSFWorkbook(is);
     }
 
-    private static void targetWorkbookExistsHandler() {
+    private static void targetWorkbookAlreadyExistsHandler() {
         String answer = askQuestion(Config.targetWorkbookAlreadyExistsMessage);
-        if (answer.equalsIgnoreCase("Y")) {
+        if (answer.equalsIgnoreCase(Config.targetWorkbookAlreadyExistsHandlerYesOption)) {
             return;
-        } else {
+        } else if (answer.equalsIgnoreCase(Config.targetWorkbookAlreadyExistsHandlerNoOption)) {
             System.exit(0);
+        } else {
+            targetWorkbookAlreadyExistsHandler();
         }
     }
 
@@ -169,9 +173,8 @@ public class App {
             }
         }
 
-        System.out.print(
-                "Creating devices from audit workbook: " + (int) numDevicesCreated + " / " + (int) totalDevices + "("
-                        + DECIMAL_FORMAT.format(((numDevicesCreated / totalDevices) * 100)) + "%)");
+        System.out.print(Config.createDevicesFromAuditWorkbookProgressMessage
+                + consoleProgressPercentHelper(numDevicesCreated, totalDevices));
 
         // loops through every sheet...
         for (int sheet = 0; sheet < numSheets; sheet++) {
@@ -218,10 +221,8 @@ public class App {
                     tempDevices.add(
                             new Device(room, asset, cot, asset.trim().length() <= Config.auditWorkbookAssetThreshold));
                     numDevicesCreated++;
-                    System.out.print("\rCreating devices from audit workbook: " + (int) numDevicesCreated + " / "
-                            + (int) totalDevices + " ("
-                            + DECIMAL_FORMAT.format(((numDevicesCreated / totalDevices) * 100))
-                            + "%)");
+                    System.out.print("\r" + Config.createDevicesFromAuditWorkbookProgressMessage
+                            + consoleProgressPercentHelper(numDevicesCreated, totalDevices));
                 }
             }
         }
@@ -248,9 +249,8 @@ public class App {
         String cantFindAssetInInventoryWorkbookMessage = Config.cantFindAssetInInventoryMessage;
 
         // used for the progress text in the console
-        System.out.print("\nUpdating devices with info from inventory workbook: " + (int) numDevicesUpdated + " / "
-                + (int) numDevicesTotal + " (" + DECIMAL_FORMAT.format(((numDevicesUpdated / numDevicesTotal) * 100))
-                + "%)");
+        System.out.print(Config.updateDevicesWithInventoryInfoProgressMessage
+                + consoleProgressPercentHelper(numDevicesUpdated, numDevicesTotal));
 
         // the method loops through every device in devices and tries to find its
         // corresponding row in the inventory.xlsx workbook. since the assetTags
@@ -265,7 +265,7 @@ public class App {
                 deviceHasAssetPopulated = false;
                 currentRow = serialNums.indexOf(device.serial);
             } else {
-                throw new Exception("Invalid object state!");
+                throw new Exception(Config.invalidDeviceStateMessage);
             }
 
             // if currentRow == -1, then the device is *not* in inventory.xlsx. thus, this
@@ -288,7 +288,7 @@ public class App {
                 currentModel = cantFindAssetInInventoryWorkbookMessage;
                 currentStatus = cantFindAssetInInventoryWorkbookMessage;
             } else {
-                throw new Exception("Invalid row state!");
+                throw new Exception(Config.invalidRowStateMessage);
             }
 
             if (deviceHasAssetPopulated) {
@@ -301,10 +301,8 @@ public class App {
 
             // progress text in console is updated accordingly
             numDevicesUpdated++;
-            System.out.print("\rUpdating devices with info from inventory workbook: " + (int) numDevicesUpdated + " / "
-                    + (int) numDevicesTotal + " ("
-                    + DECIMAL_FORMAT.format(((numDevicesUpdated / numDevicesTotal) * 100))
-                    + "%)");
+            System.out.print("\r" + Config.updateDevicesWithInventoryInfoProgressMessage
+                    + consoleProgressPercentHelper(numDevicesUpdated, numDevicesTotal));
 
         }
 
@@ -323,9 +321,8 @@ public class App {
         double numRowsTotal = devices.length, numRowsUpdated = 0;
 
         // writes progress text for first time in console
-        System.out.print(
-                "\nUpdating target workbook with device info: " + (int) numRowsUpdated + " / " + (int) numRowsTotal
-                        + " (" + DECIMAL_FORMAT.format(((numRowsUpdated / numRowsTotal) * 100)) + "%)");
+        System.out.print(Config.createTargetWorkbookWithDeviceInfoProgressMessage
+                + consoleProgressPercentHelper(numRowsUpdated, numRowsTotal));
 
         // create headers
         currentRow = sheet.getRow(0);
@@ -351,12 +348,15 @@ public class App {
 
             // updates progress text in console
             numRowsUpdated++;
-            System.out.print(
-                    "\rUpdating target workbook with device info: " + (int) numRowsUpdated + " / " + (int) numRowsTotal
-                            + " (" + DECIMAL_FORMAT.format(((numRowsUpdated / numRowsTotal) * 100)) + "%)");
+            System.out.print("\r" + Config.createTargetWorkbookWithDeviceInfoProgressMessage
+                    + consoleProgressPercentHelper(numRowsUpdated, numRowsTotal));
         }
 
         return result;
+    }
+
+    private static String consoleProgressPercentHelper(double current, double total) {
+        return (int) current + " / " + (int) total + " (" + DECIMAL_FORMAT.format((current / total) * 100) + "%)";
     }
 
     private static String askQuestion(String question) {
