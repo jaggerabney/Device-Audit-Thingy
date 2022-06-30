@@ -8,7 +8,6 @@ import org.apache.poi.xssf.usermodel.*;
 
 /*  TODO: 
  *    - talk with Kyle to get information from various PO/budgeting sheets
- *    - create function for loading workbook and displaying console progress text
  */
 
 public class App {
