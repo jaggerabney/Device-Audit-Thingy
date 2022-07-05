@@ -17,8 +17,8 @@ Because DAT is ran from a .jar file, it's most convenient to run it from the com
 
 For example, the release I plan on putting out right after I finish editing this readme file would be ran as follows:
 
-    java -jar dat-v1.0.1.jar
+    java -jar dat-v1.0.2.jar
 
 Please note that this release must have the config.properties file in the same directory as the .jar and the two .xlsx files! Otherwise, it won't run. There are several things in this file that can be edited for flexibility: workbook names, column names, column indices, console messages, etc. Just make sure that it's accurate, otherwise things will break.
 
-v1.0.1 includes a .bat file that makes running DAT a little less awful.
+v1.0.2 includes a .bat file that makes running DAT a little less awful.

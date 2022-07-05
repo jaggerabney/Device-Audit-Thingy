@@ -6,10 +6,6 @@ import java.util.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 
-/*  TODO: 
- *    - talk with Kyle to get information from various PO/budgeting sheets
- */
-
 public class App {
     public static final Scanner SCANNER = new Scanner(System.in);
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(Config.decimalFormatPattern);
@@ -333,9 +329,9 @@ public class App {
                         .formatCellValue(sheet.getRow(currentRow).getCell(productNumColIndex));
                 currentModelNum = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelNumColIndex));
             } else if (currentRow == -1 && deviceHasAssetPopulated) {
-                currentSerial = currentModel = currentStatus = currentBudgetNum = currentPurchDate = currentPurchPrice = currentPONum = currentProductNum = currentModelNum = cantFindAssetInInventoryWorkbookMessage;
+                // do nothing
             } else if (currentRow == -1 && !deviceHasAssetPopulated) {
-                currentAsset = currentModel = currentStatus = currentBudgetNum = currentPurchDate = currentPurchPrice = currentPONum = currentProductNum = currentModelNum = cantFindAssetInInventoryWorkbookMessage;
+                // do nothing
             } else {
                 throw new Exception(Config.invalidRowStateMessage);
             }

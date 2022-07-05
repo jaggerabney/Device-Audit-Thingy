@@ -29,7 +29,6 @@ public final class Device {
     }
 
     // lol. lmao
-    // for use in updateDevicesWithInventoryInfo
     public Device(String asset, String serial, String location, String room, String model, String cot,
             String status) {
         this.asset = asset;
@@ -42,6 +41,7 @@ public final class Device {
     }
 
     // oh hell
+    // for use in updateDevicesWithInventoryInfo
     public Device(String asset, String serial, String location, String room, String model, String cot, String status,
             String budgetNum, String purchDate, String purchPrice, String purchOrderNum, String lastInvDate,
             String productNum, String modelNum) {
