@@ -4,8 +4,6 @@ import java.util.*;
 
 // simple object used to track the pertinent information needed for a given row in target.xlsx
 public final class Device {
-    public static final int NUM_PROPS = 14; // update as you add props!!!
-
     public String asset;
     public String serial;
     public String location;
@@ -15,9 +13,9 @@ public final class Device {
     public String status;
     public String budgetNum;
     public String purchDate;
-    public double purchPrice;
+    public String purchPrice;
     public String purchOrderNum;
-    public Date lastInventoryDate;
+    public Date lastInvDate;
     public String productNum;
     public String modelNum;
 
@@ -47,7 +45,7 @@ public final class Device {
 
     // oh hell
     public Device(String asset, String serial, String location, String room, String model, String cot, String status,
-            String budgetNum, String purchDate, double purchPrice, String purchOrderNum, Date lastInventoryDate,
+            String budgetNum, String purchDate, String purchPrice, String purchOrderNum, Date lastInvDate,
             String productNum, String modelNum) {
         this.asset = asset;
         this.serial = serial;
@@ -60,7 +58,7 @@ public final class Device {
         this.purchDate = purchDate;
         this.purchPrice = purchPrice;
         this.purchOrderNum = purchOrderNum;
-        this.lastInventoryDate = lastInventoryDate;
+        this.lastInvDate = lastInvDate;
         this.productNum = productNum;
         this.modelNum = modelNum;
     }

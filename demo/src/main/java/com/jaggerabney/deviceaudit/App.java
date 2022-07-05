@@ -63,6 +63,7 @@ public class App {
             final Workbook target = createTargetWorkbookWithDeviceInfo(devices);
 
             // writes to target.xlsx
+            System.out.println(); // formatting
             functionWithConsoleProgressText(Config.writingToTargetWorkbookMessage, new Callable<Void>() {
                 @Override
                 public Void call() {
@@ -91,6 +92,7 @@ public class App {
                 }
             }, Config.confirmationMessage);
         } catch (Exception e) {
+            System.out.println(); // formatting since functionWithProgressText uses print, not println
             e.printStackTrace();
         }
     }
@@ -263,9 +265,17 @@ public class App {
         int assetColIndex = Config.inventoryWorkbookAssetCol.index,
                 serialColIndex = Config.inventoryWorkbookSerialCol.index,
                 modelColIndex = Config.inventoryWorkbookModelCol.index,
-                statusColIndex = Config.inventoryWorkbookStatusCol.index;
+                statusColIndex = Config.inventoryWorkbookStatusCol.index,
+                budgetNumColIndex = Config.inventoryWorkbookBudgetNumCol.index,
+                purchDateColIndex = Config.inventoryWorkbookPurchDateCol.index,
+                purchPriceColIndex = Config.inventoryWorkbookPurchPriceCol.index,
+                purchOrderNumColIndex = Config.inventoryWorkbookPurchOrderNumCol.index,
+                productNumColIndex = Config.inventoryWorkbookProductNumCol.index,
+                modelNumColIndex = Config.inventoryWorkbookModelNumCol.index;
         double numDevicesTotal = devices.length, numDevicesUpdated = 0;
-        String currentAsset = "", currentSerial = "", currentModel = "", currentStatus = "";
+        String currentAsset = "", currentSerial = "", currentModel = "", currentStatus = "", currentBudgetNum = "",
+                currentPurchDate = "", currentPurchPrice = "", currentPONum = "", currentProductNum = "",
+                currentModelNum = "";
         List<String> assetTags = Arrays.asList(getValuesOfColumn(sheet, assetColIndex));
         List<String> serialNums = Arrays.asList(getValuesOfColumn(sheet, serialColIndex));
         ArrayList<Device> result = new ArrayList<>();
@@ -274,6 +284,7 @@ public class App {
         String cantFindAssetInInventoryWorkbookMessage = Config.cantFindAssetInInventoryMessage;
 
         // used for the progress text in the console
+        System.out.println();
         System.out.print(Config.updateDevicesWithInventoryInfoProgressMessage
                 + consoleProgressPercentHelper(numDevicesUpdated, numDevicesTotal));
 
@@ -300,28 +311,42 @@ public class App {
                 currentSerial = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(serialColIndex));
                 currentModel = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelColIndex));
                 currentStatus = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(statusColIndex));
+                currentBudgetNum = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(budgetNumColIndex));
+                currentPurchDate = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(purchDateColIndex));
+                currentPurchPrice = DATA_FORMATTER
+                        .formatCellValue(sheet.getRow(currentRow).getCell(purchPriceColIndex));
+                currentPONum = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(purchOrderNumColIndex));
+                currentProductNum = DATA_FORMATTER
+                        .formatCellValue(sheet.getRow(currentRow).getCell(productNumColIndex));
+                currentModelNum = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelNumColIndex));
             } else if (currentRow != -1 && !deviceHasAssetPopulated) {
                 currentAsset = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(assetColIndex));
                 currentModel = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelColIndex));
                 currentStatus = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(statusColIndex));
+                currentBudgetNum = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(budgetNumColIndex));
+                currentPurchDate = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(purchDateColIndex));
+                currentPurchPrice = DATA_FORMATTER
+                        .formatCellValue(sheet.getRow(currentRow).getCell(purchPriceColIndex));
+                currentPONum = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(purchOrderNumColIndex));
+                currentProductNum = DATA_FORMATTER
+                        .formatCellValue(sheet.getRow(currentRow).getCell(productNumColIndex));
+                currentModelNum = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelNumColIndex));
             } else if (currentRow == -1 && deviceHasAssetPopulated) {
-                currentSerial = cantFindAssetInInventoryWorkbookMessage;
-                currentModel = cantFindAssetInInventoryWorkbookMessage;
-                currentStatus = cantFindAssetInInventoryWorkbookMessage;
+                currentSerial = currentModel = currentStatus = currentBudgetNum = currentPurchDate = currentPurchPrice = currentPONum = currentProductNum = currentModelNum = cantFindAssetInInventoryWorkbookMessage;
             } else if (currentRow == -1 && !deviceHasAssetPopulated) {
-                currentAsset = cantFindAssetInInventoryWorkbookMessage;
-                currentModel = cantFindAssetInInventoryWorkbookMessage;
-                currentStatus = cantFindAssetInInventoryWorkbookMessage;
+                currentAsset = currentModel = currentStatus = currentBudgetNum = currentPurchDate = currentPurchPrice = currentPONum = currentProductNum = currentModelNum = cantFindAssetInInventoryWorkbookMessage;
             } else {
                 throw new Exception(Config.invalidRowStateMessage);
             }
 
             if (deviceHasAssetPopulated) {
                 result.add(new Device(device.asset, currentSerial, location, device.room, currentModel,
-                        device.cot, currentStatus));
+                        device.cot, currentStatus, currentBudgetNum, currentPurchDate, currentPurchPrice, currentPONum,
+                        new Date(), currentProductNum, currentModelNum));
             } else {
                 result.add(new Device(currentAsset, device.serial, location, device.room, currentModel,
-                        device.cot, currentStatus));
+                        device.cot, currentStatus, currentBudgetNum, currentPurchDate, currentPurchPrice, currentPONum,
+                        new Date(), currentProductNum, currentModelNum));
             }
 
             // progress text in console is updated accordingly
@@ -346,12 +371,18 @@ public class App {
         double numRowsTotal = devices.length, numRowsUpdated = 0;
 
         // writes progress text for first time in console
+        System.out.println();
         System.out.print(Config.createTargetWorkbookWithDeviceInfoProgressMessage
                 + consoleProgressPercentHelper(numRowsUpdated, numRowsTotal));
 
+        // create rows
+        for (int device = 0; device < devices.length; device++) {
+            sheet.createRow(device);
+        }
+
         // create headers
         currentRow = sheet.getRow(0);
-        for (int col = 0; col < Device.NUM_PROPS; col++) {
+        for (int col = 0; col < Config.targetWorkbookColumns.size(); col++) {
             currentCell = currentRow.createCell(col);
             currentCell.setCellValue(Config.targetWorkbookColumns.get(col));
         }
@@ -365,11 +396,25 @@ public class App {
             // not only does a row need to be created in order to set the value of a cell,
             // but the actual cell itself needs to be created as well. otherwise, a
             // NullPointerException is thrown
-            for (int col = 0; col < Device.NUM_PROPS; col++) {
+            for (int col = 0; col < Config.targetWorkbookColumns.size(); col++) {
                 currentCell = currentRow.createCell(col);
-
-                // TODO: add Device fields to cells!
             }
+
+            // i promise i'll refactor this. programming gods, please dont smite me
+            currentRow.getCell(Config.targetWorkbookAssetTagColIndex).setCellValue(currentDevice.asset);
+            currentRow.getCell(Config.targetWorkbookSerialNumColIndex).setCellValue(currentDevice.serial);
+            currentRow.getCell(Config.targetWorkbookLocationColIndex).setCellValue(currentDevice.location);
+            currentRow.getCell(Config.targetWorkbookRoomColIndex).setCellValue(currentDevice.room);
+            currentRow.getCell(Config.targetWorkbookModelColIndex).setCellValue(currentDevice.model);
+            currentRow.getCell(Config.targetWorkbookUserColIndex).setCellValue(currentDevice.cot);
+            currentRow.getCell(Config.targetWorkbookStatusColIndex).setCellValue(currentDevice.status);
+            currentRow.getCell(Config.targetWorkbookBudgetNumColIndex).setCellValue(currentDevice.budgetNum);
+            currentRow.getCell(Config.targetWorkbookPurchDateColIndex).setCellValue(currentDevice.purchDate);
+            currentRow.getCell(Config.targetWorkbookPurchPriceColIndex).setCellValue(currentDevice.purchPrice);
+            currentRow.getCell(Config.targetWorkbookPurchOrderNumColIndex).setCellValue(currentDevice.purchOrderNum);
+            currentRow.getCell(Config.targetWorkbookLastInvDateColIndex).setCellValue(currentDevice.lastInvDate);
+            currentRow.getCell(Config.targetWorkbookProductNumColIndex).setCellValue(currentDevice.productNum);
+            currentRow.getCell(Config.targetWorkbookModelNumColIndex).setCellValue(currentDevice.modelNum);
 
             // updates progress text in console
             numRowsUpdated++;
@@ -381,7 +426,7 @@ public class App {
     }
 
     private static String consoleProgressPercentHelper(double current, double total) {
-        return (int) current + " / " + (int) total + " (" + DECIMAL_FORMAT.format((current / total) * 100) + "%)";
+        return " " + (int) current + " / " + (int) total + " (" + DECIMAL_FORMAT.format((current / total) * 100) + "%)";
     }
 
     private static <T> T functionWithConsoleProgressText(String beforeText, Callable<T> function, String afterText) {

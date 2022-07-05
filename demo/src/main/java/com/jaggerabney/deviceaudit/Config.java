@@ -53,7 +53,34 @@ public class Config {
 
         // target workbook column names (and indices i guess?)
         public static final List<String> targetWorkbookColumns = Arrays
-                        .asList(PROPS.getProperty("targetWorkbookCols").split("|"));
+                        .asList(PROPS.getProperty("targetWorkbookCols").split("\\|"));
+
+        // target workbook col indices
+        public static final int targetWorkbookAssetTagColIndex = Integer
+                        .valueOf(PROPS.getProperty("targetWorkbookAssetTagColIndex")),
+                        targetWorkbookSerialNumColIndex = Integer
+                                        .valueOf(PROPS.getProperty("targetWorkbookSerialNumColIndex")),
+                        targetWorkbookLocationColIndex = Integer
+                                        .valueOf(PROPS.getProperty("targetWorkbookLocationColIndex")),
+                        targetWorkbookRoomColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookRoomColIndex")),
+                        targetWorkbookModelColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookModelColIndex")),
+                        targetWorkbookUserColIndex = Integer.valueOf(PROPS.getProperty("targetWorkbookUserColIndex")),
+                        targetWorkbookStatusColIndex = Integer
+                                        .valueOf(PROPS.getProperty("targetWorkbookStatusColIndex")),
+                        targetWorkbookBudgetNumColIndex = Integer
+                                        .valueOf(PROPS.getProperty("targetWorkbookBudgetNumColIndex")),
+                        targetWorkbookPurchDateColIndex = Integer
+                                        .valueOf(PROPS.getProperty("targetWorkbookPurchDateColIndex")),
+                        targetWorkbookPurchPriceColIndex = Integer
+                                        .valueOf(PROPS.getProperty("targetWorkbookPurchPriceColIndex")),
+                        targetWorkbookPurchOrderNumColIndex = Integer
+                                        .valueOf(PROPS.getProperty("targetWorkbookPurchOrderNumColIndex")),
+                        targetWorkbookLastInvDateColIndex = Integer
+                                        .valueOf(PROPS.getProperty("targetWorkbookProductNumColIndex")),
+                        targetWorkbookProductNumColIndex = Integer
+                                        .valueOf(PROPS.getProperty("targetWorkbookProductNumColIndex")),
+                        targetWorkbookModelNumColIndex = Integer
+                                        .valueOf(PROPS.getProperty("targetWorkbookModelNumColIndex"));
 
         // messages and such
         public static final String cantFindAssetInInventoryMessage = PROPS
