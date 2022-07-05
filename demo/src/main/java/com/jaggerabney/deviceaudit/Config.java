@@ -76,7 +76,7 @@ public class Config {
                         targetWorkbookPurchOrderNumColIndex = Integer
                                         .valueOf(PROPS.getProperty("targetWorkbookPurchOrderNumColIndex")),
                         targetWorkbookLastInvDateColIndex = Integer
-                                        .valueOf(PROPS.getProperty("targetWorkbookProductNumColIndex")),
+                                        .valueOf(PROPS.getProperty("targetWorkbookLastInvDateColIndex")),
                         targetWorkbookProductNumColIndex = Integer
                                         .valueOf(PROPS.getProperty("targetWorkbookProductNumColIndex")),
                         targetWorkbookModelNumColIndex = Integer
@@ -90,6 +90,7 @@ public class Config {
                         loadingInventoryWorkbookMessage = PROPS.getProperty("loadingInventoryWorkbookMessage"),
                         confirmationMessage = PROPS.getProperty("confirmationMessage"),
                         locationQuestionMessage = PROPS.getProperty("locationQuestionMessage"),
+                        lastInvDateQuestionMessage = PROPS.getProperty("lastInvDateQuestionMessage"),
                         writingToTargetWorkbookMessage = PROPS.getProperty("writingToTargetWorkbookMessage"),
                         closingTargetWorkbookMessage = PROPS.getProperty("closingTargetWorkbookMessage");
 

@@ -50,13 +50,14 @@ public class App {
                         }
                     }, Config.confirmationMessage);
             String location = askQuestion(Config.locationQuestionMessage);
+            String lastInvDate = askQuestion(Config.lastInvDateQuestionMessage);
             Device[] devices = createDevicesFromAuditWorkbook(audit);
             // the Device objects in the devices array initially only have
             // their asset, room, and cot (checked out to) fields written to at first. the
             // updateDevicesWithInventoryInfo pulls the rest of the needed info - S/N,
             // model, status, etc. - and rewrites all of the objects in the devices array
             // with these updated copies. see the Device file for more information
-            devices = updateDevicesWithInventoryInfo(inventory, devices, location);
+            devices = updateDevicesWithInventoryInfo(inventory, devices, location, lastInvDate);
             // then, the target workbook (which is merely a Java representation of the
             // workbook, not the actual workbook itself) is updated so that the *actual*
             // target.xlsx workbook can be written to
@@ -259,8 +260,8 @@ public class App {
 
     // function used in main method to initialize the Device objects' fields that
     // weren't initialized in createDevicesFromAuditWorkbook
-    private static Device[] updateDevicesWithInventoryInfo(Workbook workbook, Device[] devices, String location)
-            throws Exception {
+    private static Device[] updateDevicesWithInventoryInfo(Workbook workbook, Device[] devices, String location,
+            String lastInvDate) throws Exception {
         Sheet sheet = workbook.getSheetAt(0);
         int assetColIndex = Config.inventoryWorkbookAssetCol.index,
                 serialColIndex = Config.inventoryWorkbookSerialCol.index,
@@ -342,11 +343,11 @@ public class App {
             if (deviceHasAssetPopulated) {
                 result.add(new Device(device.asset, currentSerial, location, device.room, currentModel,
                         device.cot, currentStatus, currentBudgetNum, currentPurchDate, currentPurchPrice, currentPONum,
-                        new Date(), currentProductNum, currentModelNum));
+                        lastInvDate, currentProductNum, currentModelNum));
             } else {
                 result.add(new Device(currentAsset, device.serial, location, device.room, currentModel,
                         device.cot, currentStatus, currentBudgetNum, currentPurchDate, currentPurchPrice, currentPONum,
-                        new Date(), currentProductNum, currentModelNum));
+                        lastInvDate, currentProductNum, currentModelNum));
             }
 
             // progress text in console is updated accordingly

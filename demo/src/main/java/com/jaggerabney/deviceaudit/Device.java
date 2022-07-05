@@ -1,7 +1,5 @@
 package com.jaggerabney.deviceaudit;
 
-import java.util.*;
-
 // simple object used to track the pertinent information needed for a given row in target.xlsx
 public final class Device {
     public String asset;
@@ -15,7 +13,7 @@ public final class Device {
     public String purchDate;
     public String purchPrice;
     public String purchOrderNum;
-    public Date lastInvDate;
+    public String lastInvDate;
     public String productNum;
     public String modelNum;
 
@@ -45,7 +43,7 @@ public final class Device {
 
     // oh hell
     public Device(String asset, String serial, String location, String room, String model, String cot, String status,
-            String budgetNum, String purchDate, String purchPrice, String purchOrderNum, Date lastInvDate,
+            String budgetNum, String purchDate, String purchPrice, String purchOrderNum, String lastInvDate,
             String productNum, String modelNum) {
         this.asset = asset;
         this.serial = serial;
