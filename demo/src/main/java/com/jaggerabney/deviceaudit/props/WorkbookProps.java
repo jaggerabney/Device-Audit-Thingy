@@ -4,6 +4,11 @@ public class WorkbookProps {
     private String name;
     private ColumnProps[] columns;
 
+    public WorkbookProps() {
+        this.name = null;
+        this.columns = null;
+    }
+
     public WorkbookProps(String name, ColumnProps[] columns) {
         this.name = name;
         this.columns = columns;
