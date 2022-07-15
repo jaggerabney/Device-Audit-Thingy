@@ -84,7 +84,7 @@ public class Config {
 
         // messages and such
         public static final String cantFindAssetInInventoryMessage = PROPS
-                        .getProperty("cantFindAssetInInventoryMessage"),
+                        .getProperty("cantFindAssetInInventoryWorkbookMessage"),
                         targetWorkbookAlreadyExistsMessage = PROPS.getProperty("targetWorkbookAlreadyExistsMessage"),
                         loadingAuditWorkbookMessage = PROPS.getProperty("loadingAuditWorkbookMessage"),
                         loadingInventoryWorkbookMessage = PROPS.getProperty("loadingInventoryWorkbookMessage"),

@@ -109,7 +109,7 @@ public class App {
     }
 
     private static void targetWorkbookAlreadyExistsHandler() {
-        String answer = askQuestion(Config.targetWorkbookAlreadyExistsMessage);
+        String answer = askQuestion(Config.targetWorkbookAlreadyExistsMessage).trim();
         if (answer.equalsIgnoreCase(Config.targetWorkbookAlreadyExistsHandlerYesOption)) {
             return;
         } else if (answer.equalsIgnoreCase(Config.targetWorkbookAlreadyExistsHandlerNoOption)) {
@@ -329,9 +329,25 @@ public class App {
                         .formatCellValue(sheet.getRow(currentRow).getCell(productNumColIndex));
                 currentModelNum = DATA_FORMATTER.formatCellValue(sheet.getRow(currentRow).getCell(modelNumColIndex));
             } else if (currentRow == -1 && deviceHasAssetPopulated) {
-                // do nothing
+                currentSerial = Config.cantFindAssetInInventoryMessage;
+                currentModel = Config.cantFindAssetInInventoryMessage;
+                currentStatus = Config.cantFindAssetInInventoryMessage;
+                currentBudgetNum = Config.cantFindAssetInInventoryMessage;
+                currentPurchDate = Config.cantFindAssetInInventoryMessage;
+                currentPurchPrice = Config.cantFindAssetInInventoryMessage;
+                currentPONum = Config.cantFindAssetInInventoryMessage;
+                currentProductNum = Config.cantFindAssetInInventoryMessage;
+                currentModelNum = Config.cantFindAssetInInventoryMessage;
             } else if (currentRow == -1 && !deviceHasAssetPopulated) {
-                // do nothing
+                currentAsset = Config.cantFindAssetInInventoryMessage;
+                currentModel = Config.cantFindAssetInInventoryMessage;
+                currentStatus = Config.cantFindAssetInInventoryMessage;
+                currentBudgetNum = Config.cantFindAssetInInventoryMessage;
+                currentPurchDate = Config.cantFindAssetInInventoryMessage;
+                currentPurchPrice = Config.cantFindAssetInInventoryMessage;
+                currentPONum = Config.cantFindAssetInInventoryMessage;
+                currentProductNum = Config.cantFindAssetInInventoryMessage;
+                currentModelNum = Config.cantFindAssetInInventoryMessage;
             } else {
                 throw new Exception(Config.invalidRowStateMessage);
             }
