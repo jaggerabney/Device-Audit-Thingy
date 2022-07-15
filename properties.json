@@ -1,0 +1,98 @@
+{
+  "auditWorkbook": {
+    "name": "audit.xlsx",
+    "assetLengthThreshold": 6,
+    "columns": [
+      {
+        "key": "room",
+        "index": 0,
+        "allowEmptySpaces": true
+      },
+      {
+        "key": "asset",
+        "index": 1,
+        "allowEmptySpaces": false
+      },
+      {
+        "key": "user",
+        "index": 2,
+        "allowEmptySpaces": true
+      }
+    ]
+  },
+
+  "inventoryWorkbook": {
+    "name": "inventory.xlsx",
+    "columns": [
+      {
+        "key": "asset",
+        "name": "AssetTag",
+        "index": 3
+      },
+      {
+        "key": "serial",
+        "name": "SerialNum",
+        "index": 12
+      },
+      {
+        "key": "model",
+        "name": "ItemDesc",
+        "index": 11
+      },
+      {
+        "key": "status",
+        "name": "Status",
+        "index": 23
+      }
+    ]
+  },
+
+  "targetWorkbook": {
+    "name": "target.xlsx",
+    "sheetName": "Data",
+    "columns": [
+      {
+        "key": "asset",
+        "name": "Asset Tag",
+        "index": 0
+      },
+      {
+        "key": "serial",
+        "name": "Serial Number",
+        "index": 1
+      },
+      {
+        "key": "location",
+        "name": "Location",
+        "index": 2
+      },
+      {
+        "key": "room",
+        "name": "Room",
+        "index": 3
+      },
+      {
+        "key": "model",
+        "name": "Model",
+        "index": 4
+      }
+    ]
+  },
+
+  "messages": {
+    "loadingAuditWorkbook": "Loading audit workbook...",
+    "loadingInventoryWorkbook": "Loading inventory workbook...",
+    "targetWorkbookExists": "Target workbook alerady exists! Please delete file and retry.",
+    "cantLoadAuditWorkbook": "Can't load target workbook! Please ensure that it's in the same directory as the .exe.",
+    "cantLoadInventoryWorkbook": "Can't load inventory workbook! Please ensure that it's in the same directory as the .exe.",
+    "locationQuestion": "What school is this sheet for? ",
+    "lastInvDateQuestion": "What date was the audit performed? (Enter as mm/dd/yyyy) ",
+    "confirmationMessage": "Done!"
+  },
+
+  "errorCodes": {
+    "cantLoadAuditWorkbook": 1,
+    "cantLoadInventoryWorkbook": 2,
+    "targetWorkbookExists": 3
+  }
+}
