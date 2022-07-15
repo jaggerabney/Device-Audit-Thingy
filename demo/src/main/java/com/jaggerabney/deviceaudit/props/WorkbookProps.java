@@ -1,15 +1,27 @@
 package com.jaggerabney.deviceaudit.props;
 
-public final class WorkbookProps {
-    public String name;
-    public ColumnProps[] columns;
+public class WorkbookProps {
+    private String name;
+    private ColumnProps[] columns;
 
-    private WorkbookProps(String name, ColumnProps[] columns) {
+    public WorkbookProps(String name, ColumnProps[] columns) {
         this.name = name;
         this.columns = columns;
     }
 
-    public static WorkbookProps newWorkbookProps(String name, ColumnProps[] columns) {
-        return new WorkbookProps(name, columns);
+    public String name() {
+        return name;
+    }
+
+    public ColumnProps[] columns() {
+        return columns;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setColumns(ColumnProps[] columns) {
+        this.columns = columns;
     }
 }

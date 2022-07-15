@@ -1,17 +1,32 @@
 package com.jaggerabney.deviceaudit.props;
 
-import org.apache.poi.ss.formula.functions.Column;
+public class ColumnProps {
+    private String key;
+    private int index;
 
-public final class ColumnProps {
-    public String key;
-    public int index;
-
-    private ColumnProps(String key, int index) {
+    public ColumnProps() {
         this.key = null;
         this.index = 0;
     }
 
-    public static ColumnProps newColumnsProps(String key, int index) {
-        return new ColumnProps(key, index);
+    public ColumnProps(String key, int index) {
+        this.key = key;
+        this.index = index;
+    }
+
+    public String key() {
+        return key;
+    }
+
+    public int index() {
+        return index;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
     }
 }
