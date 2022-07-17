@@ -4,8 +4,7 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 import com.google.gson.Gson;
-import com.jaggerabney.deviceaudit.props.AuditWorkbookProps;
-
+import com.jaggerabney.deviceaudit.props.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 
@@ -15,24 +14,28 @@ public class App {
     public static final DataFormatter DATA_FORMATTER = new DataFormatter();
 
     private static AuditWorkbookProps awp;
+    private static InventoryWorkbookProps iwp;
+    private static TargetWorkbookProps twp;
 
     public static void main(String[] args) {
-        Gson gson = new Gson();
-
-        try {
-            Reader reader = new FileReader("audit-workbook-properties.json");
-            awp = gson.fromJson(reader, AuditWorkbookProps.class);
-            System.out.println(awp.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        System.exit(0);
-
         // try block is used to catch IOException errors that come with reading
         // from/writing to files
         try {
-            File targetFile = new File(Config.targetWorkbookName);
+            functionWithConsoleProgressText("Loading properties...", new Callable<Void>() {
+                @Override
+                public Void call() {
+                    try {
+                        loadPropsObjects();
+                    } catch (Exception e) {
+                        System.out.println();
+                        e.printStackTrace();
+                    }
+
+                    return null;
+                }
+            }, Config.confirmationMessage);
+
+            File targetFile = new File(twp.name());
             if (targetFile.exists()) {
                 targetWorkbookAlreadyExistsHandler();
             }
@@ -59,7 +62,7 @@ public class App {
                     new Callable<Workbook>() {
                         @Override
                         public Workbook call() {
-                            return loadWorkbook(Config.inventoryWorkbookName);
+                            return loadWorkbook(iwp.name());
                         }
                     }, Config.confirmationMessage);
             String location = askQuestion(Config.locationQuestionMessage);
@@ -82,7 +85,7 @@ public class App {
                 @Override
                 public Void call() {
                     try {
-                        OutputStream os = new FileOutputStream(Config.targetWorkbookName);
+                        OutputStream os = new FileOutputStream(twp.name());
                         target.write(os);
                     } catch (IOException ioe) {
                         ioe.printStackTrace();
@@ -109,6 +112,22 @@ public class App {
             System.out.println(); // formatting since functionWithProgressText uses print, not println
             e.printStackTrace();
         }
+    }
+
+    private static void loadPropsObjects() throws Exception {
+        Gson gson = new Gson();
+
+        Reader awpReader = new FileReader("audit-workbook-properties.json");
+        Reader iwpReader = new FileReader("inventory-workbook-properties.json");
+        Reader twpReader = new FileReader("target-workbook-properties.json");
+
+        awp = gson.fromJson(awpReader, AuditWorkbookProps.class);
+        iwp = gson.fromJson(iwpReader, InventoryWorkbookProps.class);
+        twp = gson.fromJson(twpReader, TargetWorkbookProps.class);
+
+        awpReader.close();
+        iwpReader.close();
+        twpReader.close();
     }
 
     // small helper function for loading workbooks.
@@ -394,7 +413,7 @@ public class App {
     // file; this just updates the corresponding object.
     private static Workbook createTargetWorkbookWithDeviceInfo(Device[] devices) {
         Workbook result = new XSSFWorkbook();
-        Sheet sheet = result.createSheet(Config.targetWorkbookSheetName);
+        Sheet sheet = result.createSheet(twp.sheetName());
         Row currentRow = null;
         Cell currentCell = null;
         Device currentDevice = null;
