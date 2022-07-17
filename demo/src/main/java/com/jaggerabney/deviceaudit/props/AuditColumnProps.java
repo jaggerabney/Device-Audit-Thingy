@@ -20,4 +20,9 @@ public class AuditColumnProps extends ColumnProps {
     public void setAllowEmptySpaces(boolean allowEmptySpaces) {
         this.allowEmptySpaces = allowEmptySpaces;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " where allowEmptySpaces is " + allowEmptySpaces;
+    }
 }

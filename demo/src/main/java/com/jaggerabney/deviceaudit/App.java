@@ -14,12 +14,14 @@ public class App {
     public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat(Config.decimalFormatPattern);
     public static final DataFormatter DATA_FORMATTER = new DataFormatter();
 
+    private static AuditWorkbookProps awp;
+
     public static void main(String[] args) {
         Gson gson = new Gson();
 
         try {
             Reader reader = new FileReader("audit-workbook-properties.json");
-            AuditWorkbookProps awp = gson.fromJson(reader, AuditWorkbookProps.class);
+            awp = gson.fromJson(reader, AuditWorkbookProps.class);
             System.out.println(awp.toString());
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,7 +52,7 @@ public class App {
                     new Callable<Workbook>() {
                         @Override
                         public Workbook call() {
-                            return loadWorkbook(Config.auditWorkbookName);
+                            return loadWorkbook(awp.name());
                         }
                     }, Config.confirmationMessage);
             Workbook inventory = functionWithConsoleProgressText(Config.loadingInventoryWorkbookMessage,
