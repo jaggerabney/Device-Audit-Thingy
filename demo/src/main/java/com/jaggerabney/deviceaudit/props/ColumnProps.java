@@ -29,4 +29,9 @@ public class ColumnProps {
     public void setIndex(int index) {
         this.index = index;
     }
+
+    @Override
+    public String toString() {
+        return "Column " + key + " at index " + index;
+    }
 }

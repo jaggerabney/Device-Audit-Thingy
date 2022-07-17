@@ -20,4 +20,9 @@ public class AuditWorkbookProps extends WorkbookProps {
     public void setAssetLengthThreshold(int assetLengthThreshold) {
         this.assetLengthThreshold = assetLengthThreshold;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " and asset length threshold " + assetLengthThreshold;
+    }
 }

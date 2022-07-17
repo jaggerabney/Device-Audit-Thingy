@@ -3,6 +3,9 @@ package com.jaggerabney.deviceaudit;
 import java.io.*;
 import java.text.*;
 import java.util.*;
+import com.google.gson.Gson;
+import com.jaggerabney.deviceaudit.props.AuditWorkbookProps;
+
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
 
@@ -12,6 +15,18 @@ public class App {
     public static final DataFormatter DATA_FORMATTER = new DataFormatter();
 
     public static void main(String[] args) {
+        Gson gson = new Gson();
+
+        try {
+            Reader reader = new FileReader("audit-workbook-properties.json");
+            AuditWorkbookProps awp = gson.fromJson(reader, AuditWorkbookProps.class);
+            System.out.println(awp.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.exit(0);
+
         // try block is used to catch IOException errors that come with reading
         // from/writing to files
         try {

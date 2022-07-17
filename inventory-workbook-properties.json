@@ -1,0 +1,25 @@
+{
+  "name": "inventory.xlsx",
+  "columns": [
+    {
+      "key": "asset",
+      "name": "AssetTag",
+      "index": 3
+    },
+    {
+      "key": "serial",
+      "name": "SerialNum",
+      "index": 12
+    },
+    {
+      "key": "model",
+      "name": "ItemDesc",
+      "index": 11
+    },
+    {
+      "key": "status",
+      "name": "Status",
+      "index": 23
+    }
+  ]
+}

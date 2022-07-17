@@ -1,0 +1,31 @@
+{
+  "name": "target.xlsx",
+  "sheetName": "Data",
+  "columns": [
+    {
+      "key": "asset",
+      "name": "Asset Tag",
+      "index": 0
+    },
+    {
+      "key": "serial",
+      "name": "Serial Number",
+      "index": 1
+    },
+    {
+      "key": "location",
+      "name": "Location",
+      "index": 2
+    },
+    {
+      "key": "room",
+      "name": "Room",
+      "index": 3
+    },
+    {
+      "key": "model",
+      "name": "Model",
+      "index": 4
+    }
+  ]
+}

@@ -29,4 +29,16 @@ public class WorkbookProps {
     public void setColumns(ColumnProps[] columns) {
         this.columns = columns;
     }
+
+    @Override
+    public String toString() {
+        String columnsStrings = "";
+
+        for (ColumnProps column : columns) {
+            columnsStrings += column.toString();
+            columnsStrings += "\n";
+        }
+
+        return "Workbook " + name + " with columns: " + columnsStrings;
+    }
 }

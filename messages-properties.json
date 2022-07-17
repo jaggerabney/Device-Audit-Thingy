@@ -1,0 +1,12 @@
+{
+  "messages": {
+    "loadingAuditWorkbook": "Loading audit workbook...",
+    "loadingInventoryWorkbook": "Loading inventory workbook...",
+    "targetWorkbookExists": "Target workbook alerady exists! Please delete file and retry.",
+    "cantLoadAuditWorkbook": "Can't load target workbook! Please ensure that it's in the same directory as the .exe.",
+    "cantLoadInventoryWorkbook": "Can't load inventory workbook! Please ensure that it's in the same directory as the .exe.",
+    "locationQuestion": "What school is this sheet for? ",
+    "lastInvDateQuestion": "What date was the audit performed? (Enter as mm/dd/yyyy) ",
+    "confirmationMessage": "Done!"
+  }
+}
